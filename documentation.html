@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Emergency Quest</title>
+    <title>Emergency Quest Documentation</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -36,7 +36,7 @@
 <body id="page-top" class="index">
 
     <!-- Navigation -->
-    <nav class="navbar navbar-default navbar-fixed-top">
+    <nav class="navbar navbar-default navbar-fixed-top navbar-shrink">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header page-scroll">
@@ -83,30 +83,59 @@
                 </div>
             </div>
             <div class="row text-center">
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fa fa-user fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="service-heading">Dementia</h4>
-                    <p class="text-muted">A situation of dementia should be improved by a series of small steps that will simplify lives.</p>
-                </div>
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fa fa-heart fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="service-heading">Heart</h4>
-                    <p class="text-muted">A heart sensor should constantly check patient's pulse to keep him safe.</p>
-                </div>
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fa fa-location-arrow fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="service-heading">Localization</h4>
-                    <p class="text-muted">Don't worry, you will never lose again your old buddy. Stop being afraid of this situation!</p>
-                </div>
+                <table class="table table-striped" style="text-align: left;">
+ 								<tbody><tr>
+                                	<th>AmI Step</th>
+                                    <th>Description</th>
+                                </tr>
+                                <tr>
+                                	<td>Sensing</td>
+                                    <td>For dementia, motion will be detected. For heart attacks, heart pulse will instead be detected. We will also use a GPS locator.</td>
+                                </tr>
+                                <tr>
+                                	<td>Reasoning</td>
+                                    <td>Ability of switching decisions between cases of motion problems (dementia) or heart problems, and in this case recognize the difference between a heart attack or mild symptoms.</td>
+                                </tr>
+                                <tr>
+                                	<td>Acting</td>
+                                    <td>The system will try to guide people affected by dementia locking/unlocking specific doors or by playing useful messages. In case of heart attacks it will call the ambulance, the family and unlock the necessary doors. Otherwise, in case of mild symptoms, the system will try to change environment to make it more comfortable.</td>
+                                </tr>
+                                <tr>
+                                	<td>Interacting</td>
+                                    <td>The system will communicate with patient, family and environment. An app accessible by both users will be available for relatives to track patient movements.</td>
+                                </tr>
+                            </tbody></table>
+                            <p class="item-intro text-muted">AmI Features</p>
+                            <table class="table table-striped" style="text-align: left;">
+ 								<tbody><tr>
+                                	<th>AmI Feature</th>
+                                    <th>Description</th>
+                                </tr>
+                                <tr>
+                                	<td>Sensitive</td>
+                                    <td>The system will process motion and heart sensor data, and it will sense the environment in case of mild symptoms.</td>
+                                </tr>
+                                <tr>
+                                	<td>Responsive</td>
+                                    <td>The system will respond to elderly user affected by dementia and heart problems needs, adapting also the environment in case of mild symptoms.</td>
+                                </tr>
+                                <tr>
+                                	<td>Adaptive</td>
+                                    <td>The system is able to adapt to the context (dementia or heart problems), detecting it by what it senses.</td>
+                                </tr>
+                                <tr>
+                                	<td>Transparent</td>
+                                    <td>The end user will not need any further knowledge to use the system.</td>
+                                </tr>
+                                <tr>
+                                	<td>Ubiquitous</td>
+                                    <td>Both patients and family components will always have access to motion data communicating with a server, within an application.</td>
+                                </tr>
+                                <tr>
+                                	<td>Intelligent</td>
+                                    <td>The system can estimate the difference between a critical situation and a situation of mild symptoms.</td>
+                                </tr>
+                            </tbody></table>
             </div>
             <div class="col-lg-8 col-lg-offset-2 row text-center">
                 <br><br>
