@@ -178,7 +178,7 @@
                         <li><strong>Bracelet</strong>: system to monitor patient health state and his GPS position, its function is to improve interaction between environment and end user.</li><br>
                         <li><strong>Default</strong>: default settings when the system is configured for the first time [SETUP].</li><br>
                         <li><strong>Doctor</strong>: patient's physician, whose work can be simplified from the interaction with the system.</li><br>
-                        <li><strong>Extreme state</strong>: condition in which base actions of the system can't efford patient needs, it is a warning condition.</li><br>
+                        <li><strong>Extreme condition</strong>: condition in which base actions of the system can't efford patient needs, it is a dangerous condition.</li><br>
                         <li><strong>Map</strong>: geographic map on which there is current position of the patient, with different colored placeholders to indicate previous positions of the patient himself.</li><br>
                         <li><strong>Notification</strong>: sent by the server to the users, with two different types of it: normal notices and warning notices.</li><br>
                         <li><strong>Perimeter</strong>: area set from patient caregivers, from which patient can't go out.</li><br>
@@ -223,7 +223,7 @@
                 <h4 class="service-heading" style="text-align: center;">Functional Requirements</h4>
                 <table class="table table-striped" style="text-align: center;">
  				    <tbody>
- 				        <tr>
+ 				        <tr style="text-align: center;">
                             <th>Functional Area</th>
                             <th>Description</th>
                         </tr>
@@ -255,21 +255,59 @@
                                 <li>SETUP.1: subscription from the application, creating a new user in the database by registration of the code given with the bracelet.</li>
                                 <li>SETUP.2: no-trespassing perimeter setting.</li>
                             </ul>
-                        </li>
+                        </li><br>
                         <li>PRIORITY 2
                             <ul style="list-style-type: circle;">
                                 <li>SETUP.3: registration of messages to play when the patient gets close to a danger situation.</li>
                             </ul>
-                        </li>
+                        </li><br>
                         <li>PRIORITY 3
                             <ul style="list-style-type: circle;">
                                 <li>SETUP.4: default configuration of lights color and type of music and songs to relax patient.</li>
                                 <li>SETUP.5: default configuration of pre-recorded messages to play to the patient.</li>
                             </ul>
-                        </li>
+                        </li><br>
                         <li>PRIORITY 4
                             <ul style="list-style-type: circle;">
                                 <li>SETUP.6: possibility to insert patient's physician e-mail to send him informations to access the account and monitor the patient.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+            <hr>
+            <div class="row">
+                <p class="text-muted">
+                    <ul>
+                        <li>PRIORITY 1
+                            <ul style="list-style-type: circle;">
+                                <li>APP.1: log-in required for using every single feature of the system.</li>
+                                <li>APP.2: presence of a map in which the position of the patient is shown with a placeholder.</li>
+                                <li>APP.3: notifications sent in the app in a dangerous condition for the patient.</li>
+                            </ul>
+                        </li><br>
+                        <li>PRIORITY 2
+                            <ul style="list-style-type: circle;">
+                                <li>APP.4: setting of particular messages that will be played at predefined times to remind the patient to do something (like taking the medicines, etc..).</li>
+                                <li>APP.5: possibility for the caregivers to unlock doors from the app in case of extreme condition of the patient.</li>
+                                <li>APP.6: receive a notification if the patient takes off the bracelet.</li>
+                            </ul>
+                        </li><br>
+                        <li>PRIORITY 3
+                            <ul style="list-style-type: circle;">
+                                <li>APP.7: grant users the access to all data previous stored.</li>
+                                <li>APP.8: users can delete data previous stored if they don't need it anymore.</li>
+                                <li>APP.9: possibility to set preferences for light colors and type of music (in relaxing case).</li>
+                            </ul>
+                        </li><br>
+                        <li>PRIORITY 4
+                            <ul style="list-style-type: circle;">
+                                <li>APP.10: grant the patient's physician access to all data stored, to better monitor his patient.</li>
+                            </ul>
+                        </li>
+                        <li>PRIORITY 5
+                            <ul style="list-style-type: circle;">
+                                <li>APP.11: give the user the possibility to automatically delete previous stored data after a predefined time.</li>
                             </ul>
                         </li>
                     </ul>
