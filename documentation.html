@@ -291,23 +291,52 @@
                                 <li>APP.4: setting of particular messages that will be played at predefined times to remind the patient to do something (like taking the medicines, etc..).</li>
                                 <li>APP.5: possibility for the caregivers to unlock doors from the app in case of extreme condition of the patient.</li>
                                 <li>APP.6: receive a notification if the patient takes off the bracelet.</li>
+                                <li>APP.7: inserting on the map previously recorded (during the day) positions of the patient with a different colored placeholder.</li>
                             </ul>
                         </li><br>
                         <li>PRIORITY 3
                             <ul style="list-style-type: circle;">
-                                <li>APP.7: grant users the access to all data previous stored.</li>
-                                <li>APP.8: users can delete data previous stored if they don't need it anymore.</li>
-                                <li>APP.9: possibility to set preferences for light colors and type of music (in relaxing case).</li>
+                                <li>APP.8: grant users the access to all data previous stored.</li>
+                                <li>APP.9: users can delete data previous stored if they don't need it anymore.</li>
+                                <li>APP.10: possibility to set preferences for light colors and type of music (in relaxing case).</li>
                             </ul>
                         </li><br>
                         <li>PRIORITY 4
                             <ul style="list-style-type: circle;">
-                                <li>APP.10: grant the patient's physician access to all data stored, to better monitor his patient.</li>
+                                <li>APP.11: grant the patient's physician access to all data stored, to better monitor his patient.</li>
                             </ul>
                         </li>
                         <li>PRIORITY 5
                             <ul style="list-style-type: circle;">
-                                <li>APP.11: give the user the possibility to automatically delete previous stored data after a predefined time.</li>
+                                <li>APP.12: give the user the possibility to automatically delete previous stored data after a predefined time.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+            <hr>
+            <div class="row">
+                <p class="text-muted">
+                    <ul>
+                        <li>PRIORITY 1
+                            <ul style="list-style-type: circle;">
+                                <li>SERVER.1: presence of a database in which all user data is stored (log-in informations and sensor data related to the patient).</li>
+                                <li>SERVER.2: always running application that processes data received from sensors and stores them in the correct position (in the next requirements we always refer to the application).</li>
+                                <li>SERVER.3: processes GPS data and gives the user the possibility to always access patient current position.</li>
+                                <li>SERVER.4: selects the right action to do, distinguishing when it's necessary to relax the patient or to lock doors and windows in a dangerous condition (processing sensor data).</li>
+                                <li>SERVER.5: when it starts relaxing the patient, it plays the correct instructions using microphones in the room.</li>
+                            </ul>
+                        </li><br>
+                        <li>PRIORITY 2
+                            <ul style="list-style-type: circle;">
+                                <li>SERVER.6: traces previous GPS positions of the patient and makes them accessible from the mobile app.</li>
+                                <li>SERVER.7: locks doors and windows in case of extreme patient's conditions, if base actions can't help him.</li>
+                            </ul>
+                        </li><br>
+                        <li>PRIORITY 3
+                            <ul style="list-style-type: circle;">
+                                <li>SERVER.8: stores user's preferences in the database.</li>
+                                <li>SERVER.9: detects if the patient takes off the bracelet and sends a notification to the monile app.</li>
                             </ul>
                         </li>
                     </ul>
