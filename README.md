@@ -10,7 +10,7 @@ More than half of patients with dementia or Alzheimers exhibit some type of "agi
 
 2) Supporting the dementia patients to live at home by themselves
 
-The motion sensors around the house will enable prerecorded messages that would help the patient to remember habitual activities like locking the door, turning off the oven.
+Motion around the house will be detected and will enable prerecorded messages that would help the patient to remember habitual activities like locking the door, turning off the oven.
 Other reminder would be the set of pre-recorded messages that would be programmed at certain time, like a phone calendar, reminding the patient the realization of daily important activities.
 
 The system will also implement a GPS because the disorientation of the disease often leads to wandering, a common and serious concern for many caregivers. This type of technology can let a caregiver know if the patient has left a certain area or it can show the patient his daily track and the places he have gone.
