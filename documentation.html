@@ -283,7 +283,7 @@
                                 <li>The user has the possibility to insert doctor's e-mail to send him informations and monitor the patient.</li>
                                 <li>Priority 4</li>
                             </ul>
-                        </li><br>
+                        </li>
                     </ul>
                 </p>
             </div>
@@ -370,25 +370,46 @@
             <div class="row">
                 <p class="text-muted">
                     <ul>
-                        <li>PRIORITY 1
+                        <li><strong>FR SERVER.1</strong>: Position processing
                             <ul style="list-style-type: circle;">
-                                <li>SERVER.1: presence of a database in which all user data is stored (log-in informations and sensor data related to the patient).</li>
-                                <li>SERVER.2: always running application that processes data received from sensors and stores them in the correct position (in the next requirements we always refer to the application).</li>
-                                <li>SERVER.3: processes GPS data and gives the user the possibility to always access patient current position.</li>
-                                <li>SERVER.4: selects the right action to do, distinguishing when it's necessary to relax the patient or to lock doors and windows in a dangerous condition (processing sensor data).</li>
-                                <li>SERVER.5: when it starts relaxing the patient, it plays the correct instructions using microphones in the room.</li>
+                                <li>The server should be able to process GPS data and give the user the possibility to always access patient current position.</li>
+                                <li>Priority 1</li>
                             </ul>
                         </li><br>
-                        <li>PRIORITY 2
+                        <li><strong>FR SERVER.2</strong>: Data reasoning
                             <ul style="list-style-type: circle;">
-                                <li>SERVER.6: traces previous GPS positions of the patient and makes them accessible from the mobile app.</li>
-                                <li>SERVER.7: locks doors and windows in case of extreme patient's conditions, if base actions can't help him.</li>
+                                <li>The server selects the right action to do, distinguishing when it's necessary to relax the patient or to lock doors and windows in a dangerous condition (processing sensor data).</li>
+                                <li>Priority 1</li>
                             </ul>
                         </li><br>
-                        <li>PRIORITY 3
+                        <li><strong>FR SERVER.3</strong>: Environment changing
                             <ul style="list-style-type: circle;">
-                                <li>SERVER.8: stores user's preferences in the database.</li>
-                                <li>SERVER.9: detects if the patient takes off the bracelet and sends a notification to the mobile app.</li>
+                                <li>The server, in order to relax the patient during an "agitation" condition, may play the correct instructions and music to relax by the speakers in the room, may control lights, following user's preferences previously set-up. </li>
+                                <li>Priority 1</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR SERVER.4</strong>: Positions storing
+                            <ul style="list-style-type: circle;">
+                                <li>The server traces previous GPS positions of the patient and makes them accessible from the mobile app.</li>
+                                <li>Priority 2</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR SERVER.5</strong>: Emergency locking
+                            <ul style="list-style-type: circle;">
+                                <li>The server locks doors and windows in case of extreme conditions, if it detects unusual behavior by processing "agitation" data.</li>
+                                <li>Priority 2</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR SERVER.6</strong>: Preferences management
+                            <ul style="list-style-type: circle;">
+                                <li>The server manages user preferences.</li>
+                                <li>Priority 3</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR SERVER.7</strong>: Take-off notifying
+                            <ul style="list-style-type: circle;">
+                                <li>The server sends a notification within the mobile app if it detects that the patient takes off the bracelet.</li>
+                                <li>Priority 3</li>
                             </ul>
                         </li>
                     </ul>
