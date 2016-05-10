@@ -536,13 +536,81 @@
                                 <li>processed the user position and provides a map to the app/website</li>
                             </ul>
                         </li><br>
-                        <li><strong>Runs on</strong>: 
+                        <li><strong>Runs on</strong>: a computer</li><br>
+                        <li><strong>Interacts</strong>:
                             <ul style="list-style-type: circle;">
-                                <li>natively on smartphones</li>
-                                <li>in web browser on computers</li>
+                                <li>with the room by HTTP</li>
+                                <li>with website/app by HTTP</li>
+                                <li>with Google Maps with Google Maps APIs</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+                <p class="text-muted">
+                    <strong>ROOM</strong> (station + sensors)
+                    <ul>
+                        <li><strong>Functions</strong>:
+                            <ul style="list-style-type: circle;">
+                                <li>collects data from sensors and sends them to the server</li>
+                                <li>receives instructions from server</li>
+                                <li>controls the ambient</li>
                             </ul>
                         </li><br>
-                        <li><strong>Interacts</strong>: with the server by HTTP</li>
+                        <li><strong>Runs on</strong>: a single-boarded computer placed in the house</li><br>
+                        <li><strong>Interacts</strong>: with server by HTTP</li>
+                    </ul>
+                </p>
+            </div>
+            <div class="row">
+                <h4 class="service-heading" style="text-align: center;">2.1 - Hardware Components</h4>
+                <h6 class="service-heading">2.1.1 - Off-the-Shelf</h6>
+                <p class="text-muted">
+                    <ul>
+                        <li><strong>Server</strong>: a computer running the server application, with Internet connection</li><br>
+                        <li><strong>Room</strong>: Raspberry Pi
+                            <ul style="list-style-type: circle;">
+                                <li>Z-Wave sensor (for motion)</li>
+                                <li>Active speakers (for playing messages and music)</li>
+                                <li>RaZberry (for Z-Wave controlling)</li>
+                                <li>2 Hue bulbs (controllable lights)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+                <h6 class="service-heading">2.1.1 - AD-HOC</h6>
+                <p class="text-muted">Out soon.</p>
+            </div>
+            <div class="row">
+                <h4 class="service-heading" style="text-align: center;">2.2 - Software Components</h4>
+                <p class="text-muted">
+                    <ul>
+                        <li><strong>Server</strong>:
+                            <ul style="list-style-type: circle;">
+                                <li>Flask v0.10.1</li>
+                                <li>Database (SQLite3)</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>Website</strong>:
+                            <ul style="list-style-type: circle;">
+                                <li>HTML5, CSS3, JavaScript 1.8</li>
+                                <li>Jinja2 Template</li>
+                                <li>Bootstrap (Flask-Bootstrap)</li>
+                                <li>jQuery v1.11.3</li>
+                                <li>Google Maps API v3</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>Mobile application</strong>:
+                            <ul style="list-style-type: circle;">
+                                <li>PhoneGap CLI v6.2.0</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>Room</strong>:
+                            <ul style="list-style-type: circle;">
+                                <li>Z-Wave API</li>
+                                <li>Hue bulb API</li>
+                                <li>{Software for bracelet} -> to update</li>
+                            </ul>
+                        </li><br>
                     </ul>
                 </p>
             </div>
