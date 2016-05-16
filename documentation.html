@@ -11,7 +11,7 @@
 
     <title>Emergency Quest Documentation</title>
 
-    <!-- Bootstrap Core CSS -->e
+    <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
@@ -396,22 +396,22 @@
                                 <li>Priority 2</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR SERVER.5</strong>: Emergency locking
+                        <li><strong>FR SERVER.5</strong>: Preferences management
                             <ul style="list-style-type: circle;">
-                                <li>The server locks doors and windows in case of extreme conditions, if it detects unusual behavior by processing "agitation" data.</li>
+                                <li>The server manages user preferences.</li>
                                 <li>Priority 2</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR SERVER.6</strong>: Preferences management
-                            <ul style="list-style-type: circle;">
-                                <li>The server manages user preferences.</li>
-                                <li>Priority 3</li>
-                            </ul>
-                        </li><br>
-                        <li><strong>FR SERVER.7</strong>: Take-off notifying
+                        <li><strong>FR SERVER.6</strong>: Take-off notifying
                             <ul style="list-style-type: circle;">
                                 <li>The server sends a notification within the mobile app if it detects that the patient takes off the bracelet.</li>
                                 <li>Priority 3</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR SERVER.7</strong>: Emergency locking
+                            <ul style="list-style-type: circle;">
+                                <li>The server locks doors and windows in case of extreme conditions, if it detects unusual behavior by processing "agitation" data.</li>
+                                <li>Priority 4</li>
                             </ul>
                         </li>
                     </ul>
@@ -495,8 +495,8 @@
                                 <li>Controllable lights</li>
                             </ul>
                         </li><br>
-                        <li><strong>SERVER</strong>: a computer connected to the Internet via LAN or Wi-Fi.</li><br>
-                        <li><strong>USER'S SMARTPHONE</strong>: device used to access to the system from the mobile application.</li><br>
+                        <li><strong>SERVER</strong>: a computer connected to the Internet via LAN.</li><br>
+                        <li><strong>USER'S SMARTPHONE</strong>: device used to access to the system front-end from the mobile application.</li><br>
                     </ul>
                 </p>
             </div>
@@ -566,12 +566,11 @@
                 <h5 class="service-heading">2.1.1 - Off-the-Shelf</h5>
                 <p class="text-muted">
                     <ul>
-                        <li><strong>Server</strong>: Raspberry Pi</li><br>
+                        <li><strong>Server</strong>: Raspberry Pi + Wi-Fi module</li><br>
                         <li><strong>Room</strong>:
                             <ul style="list-style-type: circle;">
-                                <li>Z-Wave sensor (for motion)</li>
                                 <li>Active speakers (for playing messages and music)</li>
-                                <li>RaZberry (for Z-Wave controlling)</li>
+                                <li>RaZberry (for Z-Wave motion sensing)</li>
                                 <li>2 Hue bulbs (controllable lights)</li>
                                 <li>Jawbone UP3 (for agitation detection)</li>
                             </ul>
