@@ -108,14 +108,14 @@ def load_calendar():
   return jsonify({'calendar':calendar})
   
 @app.route('/rest_api/v1.0/calendar/<int:code>', methods=['DELETE'])
-def delete_appointment(code):
+def delete_appointment(int(code)):
   mail = session['mail']
   
   db_app_interaction.delete_appointment(mail, int(code))
   return Response(status=200)
   
 @app.route('/rest_api/v1.0/calendar/<int:code>', methods=['PUT'])
-def update_appointment(code):
+def update_appointment(int(code)):
   mail = session['mail']
   update_req = request.json
   
@@ -129,6 +129,18 @@ def update_appointment(code):
     return Response(status=200)
   
   abort(403)
+
+@app.route('/rest_api/v1.0/get_positions', methods=['GET'])
+def get_pos():
+  mail = session['mail']
+  
+  positions = []
+  ps = db_app_interaction.get_positions(mail)
+  for item in ps:
+    po = prepare_for_json_pos(item)
+    positions.append(po)
+  
+  return jsonify({'positions':positions})
   
 def prepare_for_json_set(item):
   settings = dict()
@@ -149,3 +161,11 @@ def prepare_for_json_tot(item)
   tot['message'] = item[3]
   
   return tot
+  
+def prepare_for_json_pos(item)
+  pos = dict()
+  pos['latitude'] = item[0]
+  pos['longitude'] = item[1]
+  pos['ora'] = item[2]
+  
+  return pos
