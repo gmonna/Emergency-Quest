@@ -1,3 +1,10 @@
+#!/usr/bin/python
+
+"""
+Created on May 30, 3016
+@author: gmonna
+"""
+
 import sqlite3, smtplib
 
 def sign_in(mail, password):
