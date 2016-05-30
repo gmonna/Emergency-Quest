@@ -218,7 +218,7 @@ def set_appointment(mail, data, ora, message):
     
   conn.close()
 
-def delete_appointment(code):
+def delete_appointment(mail, code):
   """
   Add an appointment to the calendar
   """
@@ -226,6 +226,24 @@ def delete_appointment(code):
   conn = sqlite3.connect("database.db")
   cursor = conn.cursor()
   sql = "DELETE FROM CALENDAR WHERE mail=? AND code=?"
+  
+  try:
+    cursor.execute(sql, (mail, code))
+    conn.commit()
+  except Exception, e:
+    print str(e)
+    conn.rollback()
+    
+  conn.close()
+  
+def update_appo(mail, code, data, ora, message):
+  """
+  Update an appointment into the calendar
+  """
+  
+  conn = sqlite3.connect("database.db")
+  cursor = conn.cursor()
+  sql = "UPDATE FROM CALENDAR WHERE mail=? AND code=?"
   
   try:
     cursor.execute(sql, (mail, code))
