@@ -192,7 +192,7 @@ def get_calendar(mail):
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
-  sql = "SELECT code, data, ora, message FROM CALENDAR WHERE mail=?"
+  sql = "SELECT code, titolo, data, ora, message FROM CALENDAR WHERE mail=?"
 
   cursor.execute(sql, (mail, ))
   calendar = cursor.fetchall()
@@ -200,17 +200,17 @@ def get_calendar(mail):
   conn.close()
   return calendar
 
-def set_appointment(mail, data, ora, message):
+def set_appointment(mail, titolo, data, ora, message):
   """
   Add an appointment to the calendar
   """
   
   conn = sqlite3.connect("database.db")
   cursor = conn.cursor()
-  sql = "INSERT INTO CALENDAR(mail, data, ora, message) VALUES (?, ?, ?, ?)"
+  sql = "INSERT INTO CALENDAR(mail, titolo, data, ora, message) VALUES (?, ?, ?, ?, ?)"
   
   try:
-    cursor.execute(sql, (mail, data, ora, message))
+    cursor.execute(sql, (mail, titolo, data, ora, message))
     conn.commit()
   except Exception, e:
     print str(e)
@@ -236,17 +236,17 @@ def delete_appointment(mail, code):
     
   conn.close()
   
-def update_appo(mail, code, data, ora, message):
+def update_appo(mail, code, titolo, data, ora, message):
   """
   Update an appointment into the calendar
   """
   
   conn = sqlite3.connect("database.db")
   cursor = conn.cursor()
-  sql = "UPDATE CALENDAR SET data=? AND ora=? AND message=? WHERE mail=? AND code=?"
+  sql = "UPDATE CALENDAR SET titolo=? AND data=? AND ora=? AND message=? WHERE mail=? AND code=?"
   
   try:
-    cursor.execute(sql, (data, ora, message, mail, code))
+    cursor.execute(sql, (titolo, data, ora, message, mail, code))
     conn.commit()
   except Exception, e:
     print str(e)
