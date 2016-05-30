@@ -23,6 +23,21 @@ def get_code(bcod):
   conn.close()
   return bcod
 
+def code_byemail(mail):
+  """
+  Check if mail is connected to any bcode
+  """
+  conn = sqlite3.connect("database.db")
+  conn.text_factory = sqlite3.OptimizedUnicode
+  cursor = conn.cursor()
+  
+  sql = "SELECT bcod FROM USERS WHERE mail=?"
+  cursor.execute(sql, (mail, ))
+  bcod = cursor.fetchone()
+  
+  conn.close()
+  return bcod
+
 def sign_in(mail, password):
   """
   Log in to the system
