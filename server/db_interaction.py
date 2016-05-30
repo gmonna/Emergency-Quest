@@ -142,13 +142,31 @@ def get_history(mail):
     err = str(e)
     conn.close()
     abort(404)
+
+  return history
+  
+def delete_history(mail):
+  """
+  Delete patient's history from database
+  """
+
+  conn = sqlite3.connect("database.db")
+  cursor = conn.cursor()
+  
+  sql = "DELETE FROM HISTORY WHERE mail=?"
+  
+  try:
+    cursor.execute(sql, (mail, ))
+    conn.commit()
+  except Exception, e:
+    err = str(e)
+    conn.rollback()
     
   conn.close()
-  return history
 
 def get_calendar(mail):
   """
-  Get patient's history of notifications
+  Get patient's appointments
   """
   calendar = []
   
@@ -163,9 +181,62 @@ def get_calendar(mail):
     calendar = cursor.fetchall()
   except Exception, e:
     err = str(e)
-    conn.close()
     abort(404)
     
   conn.close()
   return calendar
+
+def set_appointment(mail, data, ora, message):
+  """
+  Add an appointment to the calendar
+  """
   
+  conn = sqlite3.connect("database.db")
+  cursor = conn.cursor()
+  sql = "INSERT INTO CALENDAR(mail, data, ora, message) VALUES (?, ?, ?, ?)"
+  
+  try:
+    cursor.execute(sql, (mail, data, ora, message))
+    conn.commit()
+  except Exception, e:
+    print str(e)
+    conn.rollback()
+    
+  conn.close()
+
+def delete_appointment(mail, data, ora):
+  """
+  Add an appointment to the calendar
+  """
+  
+  conn = sqlite3.connect("database.db")
+  cursor = conn.cursor()
+  sql = "DELETE FROM CALENDAR WHERE mail=? AND data=? AND ora=?"
+  
+  try:
+    cursor.execute(sql, (mail, data, ora))
+    conn.commit()
+  except Exception, e:
+    print str(e)
+    conn.rollback()
+    
+  conn.close()
+
+def get_positions(mail):
+  """
+  Get past positions during the day for the patient
+  """
+  positions = []
+  
+  conn = sqlite3.connect("database.db")
+  cursor = conn.cursor()
+  sql = "SELECT latitude, longitude, ora FROM POSITION WHERE mail=?"
+  
+  try:
+    cursor.execute(sql, (mail, ))
+    positions = cursor.fetchall()
+  except Exception, e:
+    print str(e)
+    abort(404)
+  
+  conn.close()
