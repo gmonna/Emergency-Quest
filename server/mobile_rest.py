@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 #----------- REST SERVER ----------#
 @app.route('/rest_api/v1.0/signup', methods=['POST'])
-def new_user:
+def new_user():
   insert_request = request.json
   
   if (insert_request is not None) and ('name' and 'surname' and 'mail' and 'password' and 'bcod') in insert_request:
@@ -32,7 +32,7 @@ def new_user:
   abort(403)
   
 @app.route('/rest_api/v1.0/signin', methods=['GET'])
-def log_in:
+def log_in():
   mail = request.args.get('mail')
   bcod = db_app_interaction.code_bymail(mail)
   if bcode is None:
@@ -44,3 +44,22 @@ def log_in:
   session['name'] = user['name']
   session['surname'] = user['surname']
   
+@app.route('/rest_api/v1.0/get_settings', methods=['GET'])
+def load_settings():
+  mail = session['mail']
+  
+  set_list = db_app_interaction.get_settings(mail)
+  settings = prepare_for_json_set(set_list)
+  
+  return jsonify({settings})
+  
+def prepare_for_json_set(item):
+  settings = dict()
+  settings['perimeter'] = item[0]
+  settings['colour'] = item[1]
+  settings['song'] = item[2]
+  settings['doct'] = item[3]
+  settings['message'] = item[4]
+  settings['auto_clean'] = item[5]
+  
+  return settings
