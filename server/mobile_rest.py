@@ -115,12 +115,20 @@ def delete_appointment(code):
   return Response(status=200)
   
 @app.route('/rest_api/v1.0/calendar/<int:code>', methods=['PUT'])
-def delete_appointment(code):
+def update_appointment(code):
   mail = session['mail']
   update_req = request.json
-  #--
-  db_app_interaction.update_appointment(mail, int(code), data, ora, message)
-  return Response(status=200)
+  
+  if update_req is not None and ('mail' and 'code' and 'data' and 'ora' and 'message') in update_req:
+    code = update_req['code']
+    data = update_req['data']
+    ora = update_req['ora']
+    message = update_req['message']
+    
+    db_app_interaction.update_appo(mail, int(code), data, ora, message)
+    return Response(status=200)
+  
+  abort(403)
   
 def prepare_for_json_set(item):
   settings = dict()
