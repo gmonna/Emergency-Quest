@@ -11,7 +11,7 @@ import db_app_interaction
 app = Flask(__name__)
 
 #----------- REST SERVER ----------#
-@app.route('/rest_api/v1.0/signup' methods=['POST'])
+@app.route('/rest_api/v1.0/signup', methods=['POST'])
 def new_user:
   insert_request = request.json
   
@@ -30,3 +30,17 @@ def new_user:
     return Response(status=200)
   
   abort(403)
+  
+@app.route('/rest_api/v1.0/signin', methods=['GET'])
+def log_in:
+  mail = request.args.get('mail')
+  bcod = db_app_interaction.code_bymail(mail)
+  if bcode is None:
+    abort(404)
+    
+  password = request.args.get('password')
+  user = db_app_interaction.sign_in(mail, password)
+  session['mail'] = mail
+  session['name'] = user['name']
+  session['surname'] = user['surname']
+  
