@@ -18,13 +18,8 @@ def sign_in(mail, password):
   
   sql = "SELECT nome, cognome FROM USERS WHERE mail=? AND password=?"
   
-  try:
-    cursor.execute(sql, (mail, password))
-    user = cursor.fetchone()
-  except Exception, e:
-    err = str(e)
-    conn.close()
-    abort(404)
+  cursor.execute(sql, (mail, password))
+  user = cursor.fetchone()
     
   conn.close()
   return user
@@ -58,14 +53,9 @@ def lost_password(mail):
   
   sql = "SELECT password FROM USERS WHERE mail=?"
   
-  try:
-    cursor.execute(sql, (mail, ))
-    password = cursor.fetchone()
-  except Exception, e:
-    err = str(e)
-    conn.close()
-    abort(404)
-    
+  cursor.execute(sql, (mail, ))
+  password = cursor.fetchone()
+  
   sender = 'info@emergencyquest.com'
   receivers = [mail]
 
@@ -96,15 +86,10 @@ def get_settings(mail)
   cursor = conn.cursor()
   
   sql = "SELECT perimeter, colour, song, doct, message, auto_clean FROM PREFERENCES WHERE mail=?"
+
+  cursor.execute(sql, (mail, ))
+  settings = cursor.fetchone()
   
-  try:
-    cursor.execute(sql, (mail, ))
-    settings = cursor.fetchone()
-  except Exception, e:
-    err = str(e)
-    conn.close()
-    abort(404)
-    
   conn.close()
   return settings
 
@@ -141,14 +126,9 @@ def get_history(mail):
   cursor = conn.cursor()
   
   sql = "SELECT data, ora, message FROM HISTORY WHERE mail=?"
-  
-  try:
-    cursor.execute(sql, (mail, ))
-    history = cursor.fetchall()
-  except Exception, e:
-    err = str(e)
-    conn.close()
-    abort(404)
+
+  cursor.execute(sql, (mail, ))
+  history = cursor.fetchall()
 
   return history
   
@@ -182,14 +162,10 @@ def get_calendar(mail):
   cursor = conn.cursor()
   
   sql = "SELECT data, ora, message FROM CALENDAR WHERE mail=?"
-  
-  try:
-    cursor.execute(sql, (mail, ))
-    calendar = cursor.fetchall()
-  except Exception, e:
-    err = str(e)
-    abort(404)
-    
+
+  cursor.execute(sql, (mail, ))
+  calendar = cursor.fetchall()
+
   conn.close()
   return calendar
 
@@ -239,11 +215,7 @@ def get_positions(mail):
   cursor = conn.cursor()
   sql = "SELECT latitude, longitude, ora FROM POSITION WHERE mail=?"
   
-  try:
-    cursor.execute(sql, (mail, ))
-    positions = cursor.fetchall()
-  except Exception, e:
-    print str(e)
-    abort(404)
+  cursor.execute(sql, (mail, ))
+  positions = cursor.fetchall()
   
   conn.close()
