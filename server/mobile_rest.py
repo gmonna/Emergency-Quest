@@ -53,6 +53,26 @@ def load_settings():
   
   return jsonify({settings})
   
+@app.route('/rest_api/v1.0/set_settings', methods=['POST'])
+def settings():
+  setting_req = request.json
+  
+  if (setting_req is not None) and ('perimeter' and 'colour' and 'song' and 'doct' and 'message' and 'auto_clean' and 'first') in setting_req:
+    
+    mail = session['mail']
+    perimeter = setting_req['perimeter']
+    colour = setting_req['colour']
+    song = setting_req['song']
+    doct = setting_req['doct']
+    message = setting_req['message']
+    auto_clean = setting_req['auto_clean']
+    first = setting_req['first']
+    
+    db_app_interaction.set_settings(mail, perimeter, colour, song, doct, message, auto_clean, first)
+    return Response(status=200)
+  
+  abort(403)
+  
 def prepare_for_json_set(item):
   settings = dict()
   settings['perimeter'] = item[0]
