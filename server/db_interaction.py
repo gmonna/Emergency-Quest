@@ -7,6 +7,22 @@ Created on May 30, 3016
 
 import sqlite3, smtplib
 
+def get_code(bcod):
+  """
+  Check if bcod inserted by user is present
+  """
+  
+  conn = sqlite3.connect("database.db")
+  conn.text_factory = sqlite3.OptimizedUnicode
+  cursor = conn.cursor()
+  
+  sql = "SELECT bcod FROM CODE WHERE bcod=?"
+  cursor.execute(sql, (bcod, ))
+  bcod = cursor.fetchone()
+  
+  conn.close()
+  return bcod
+
 def sign_in(mail, password):
   """
   Log in to the system
