@@ -243,10 +243,10 @@ def update_appo(mail, code, data, ora, message):
   
   conn = sqlite3.connect("database.db")
   cursor = conn.cursor()
-  sql = "UPDATE FROM CALENDAR WHERE mail=? AND code=?"
+  sql = "UPDATE CALENDAR SET data=? AND ora=? AND message=? WHERE mail=? AND code=?"
   
   try:
-    cursor.execute(sql, (mail, code))
+    cursor.execute(sql, (data, ora, message, mail, code))
     conn.commit()
   except Exception, e:
     print str(e)
