@@ -119,13 +119,14 @@ def update_appointment(int(code)):
   mail = session['mail']
   update_req = request.json
   
-  if update_req is not None and ('mail' and 'code' and 'data' and 'ora' and 'message') in update_req:
+  if update_req is not None and ('mail' and 'code' and 'titolo' and 'data' and 'ora' and 'message') in update_req:
     code = update_req['code']
+    titolo = update_req['titolo']
     data = update_req['data']
     ora = update_req['ora']
     message = update_req['message']
     
-    db_app_interaction.update_appo(mail, int(code), data, ora, message)
+    db_app_interaction.update_appo(mail, int(code), titolo, data, ora, message)
     return Response(status=200)
   
   abort(403)
@@ -144,28 +145,33 @@ def get_pos():
   
 def prepare_for_json_set(item):
   settings = dict()
-  settings['perimeter'] = item[0]
-  settings['colour'] = item[1]
-  settings['song'] = item[2]
-  settings['doct'] = item[3]
-  settings['message'] = item[4]
-  settings['auto_clean'] = item[5]
+  
   
   return settings
 
-def prepare_for_json_tot(item)
+def prepare_for_json(item)
   tot = dict()
-  tot['code'] = item[0]
-  tot['data'] = item[1]
-  tot['ora'] = item[2]
-  tot['message'] = item[3]
+  if (len(item)==3):
+    tot['latitude'] = item[0]
+    tot['longitude'] = item[1]
+    tot['ora'] = item[2]
+  if (len(item)==4):
+    tot['code'] = item[0]
+    tot['data'] = item[1]
+    tot['ora'] = item[2]
+    tot['message'] = item[3]
+  if (len(item)==5):
+    tot['code'] = item[0]
+    tot['titolo'] = item[1]
+    tot['data'] = item[2]
+    tot['ora'] = item[3]
+    tot['message'] = item[4]
+  if (len(item)==6):
+    tot['perimeter'] = item[0]
+    tot['colour'] = item[1]
+    tot['song'] = item[2]
+    tot['doct'] = item[3]
+    tot['message'] = item[4]
+    tot['auto_clean'] = item[5]
   
   return tot
-  
-def prepare_for_json_pos(item)
-  pos = dict()
-  pos['latitude'] = item[0]
-  pos['longitude'] = item[1]
-  pos['ora'] = item[2]
-  
-  return pos
