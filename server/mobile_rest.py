@@ -43,15 +43,25 @@ def log_in():
   session['mail'] = mail
   session['name'] = user['name']
   session['surname'] = user['surname']
+  return Response(status=200)
+  
+@app.route('/rest_api/v1.0/lost_password', methods=['GET'])
+def retrieve_pass():
+  mail = request.args.get('mail')
+  bcod = db_app_interaction.code_bymail(mail)
+  if bcode is None:
+    abort(404)
+    
+  db_app_interaction.lost_password(mail)
+  return Response(status=200)
   
 @app.route('/rest_api/v1.0/get_settings', methods=['GET'])
 def load_settings():
   mail = session['mail']
   
   set_list = db_app_interaction.get_settings(mail)
-  settings = prepare_for_json_set(set_list)
   
-  return jsonify({settings})
+  return jsonify({'settings':prepare_for_json_set(set_list)})
   
 @app.route('/rest_api/v1.0/set_settings', methods=['POST'])
 def settings():
@@ -72,6 +82,30 @@ def settings():
     return Response(status=200)
   
   abort(403)
+
+@app.route('/rest_api/v1.0/get_history', methods=['GET'])
+def load_settings():
+  mail = session['mail']
+  
+  history = []
+  notif = db_app_interaction.get_history(mail)
+  for item in notif:
+    his = prepare_for_json_tot(item)
+    history.append(his)
+  
+  return jsonify({'history':history})
+  
+@app.route('/rest_api/v1.0/get_calendar', methods=['GET'])
+def load_calendar():
+  mail = session['mail']
+  
+  calendar = []
+  cal = db_app_interaction.get_calendar(mail)
+  for item in cal:
+    cl = prepare_for_json_tot(item)
+    calendar.append(cl)
+  
+  return jsonify({'calendar':calendar})
   
 def prepare_for_json_set(item):
   settings = dict()
@@ -83,3 +117,11 @@ def prepare_for_json_set(item):
   settings['auto_clean'] = item[5]
   
   return settings
+
+def prepare_for_json_tot(item)
+  tot = dict()
+  tot['data'] = item[0]
+  tot['ora'] = item[1]
+  tot['message'] = item[2]
+  
+  return tot
