@@ -156,7 +156,7 @@ def get_history(mail):
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
-  sql = "SELECT data, ora, message FROM HISTORY WHERE mail=?"
+  sql = "SELECT code, data, ora, message FROM HISTORY WHERE mail=?"
 
   cursor.execute(sql, (mail, ))
   history = cursor.fetchall()
@@ -192,7 +192,7 @@ def get_calendar(mail):
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
-  sql = "SELECT data, ora, message FROM CALENDAR WHERE mail=?"
+  sql = "SELECT code, data, ora, message FROM CALENDAR WHERE mail=?"
 
   cursor.execute(sql, (mail, ))
   calendar = cursor.fetchall()
@@ -218,17 +218,17 @@ def set_appointment(mail, data, ora, message):
     
   conn.close()
 
-def delete_appointment(mail, data, ora):
+def delete_appointment(code):
   """
   Add an appointment to the calendar
   """
   
   conn = sqlite3.connect("database.db")
   cursor = conn.cursor()
-  sql = "DELETE FROM CALENDAR WHERE mail=? AND data=? AND ora=?"
+  sql = "DELETE FROM CALENDAR WHERE mail=? AND code=?"
   
   try:
-    cursor.execute(sql, (mail, data, ora))
+    cursor.execute(sql, (mail, code))
     conn.commit()
   except Exception, e:
     print str(e)
