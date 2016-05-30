@@ -106,6 +106,23 @@ def load_calendar():
     calendar.append(cl)
   
   return jsonify({'calendar':calendar})
+
+@app.route('/rest_api/v1.0/calendar/insert', methods=['POST'])
+def insert_appointment():
+  req = request.json
+  
+  if (req is not None) and ('titolo' and 'data' and 'ora' and 'message') in req:
+    
+    mail = session['mail']
+    titolo = req['titolo']
+    data = req['data']
+    ora = req['ora']
+    message = req['message']
+    
+    db_app_interaction.set_appointment(mail, titolo, data, ora, message)
+    return Response(status=200)
+  
+  abort(403)
   
 @app.route('/rest_api/v1.0/calendar/<int:code>', methods=['DELETE'])
 def delete_appointment(int(code)):
