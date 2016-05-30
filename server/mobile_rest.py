@@ -61,7 +61,7 @@ def load_settings():
   
   set_list = db_app_interaction.get_settings(mail)
   
-  return jsonify({'settings':prepare_for_json_set(set_list)})
+  return jsonify({'settings':prepare_for_json(set_list)})
   
 @app.route('/rest_api/v1.0/set_settings', methods=['POST'])
 def settings():
@@ -90,7 +90,7 @@ def load_settings():
   history = []
   notif = db_app_interaction.get_history(mail)
   for item in notif:
-    his = prepare_for_json_tot(item)
+    his = prepare_for_json(item)
     history.append(his)
   
   return jsonify({'history':history})
@@ -102,7 +102,7 @@ def load_calendar():
   calendar = []
   cal = db_app_interaction.get_calendar(mail)
   for item in cal:
-    cl = prepare_for_json_tot(item)
+    cl = prepare_for_json(item)
     calendar.append(cl)
   
   return jsonify({'calendar':calendar})
@@ -143,7 +143,7 @@ def get_pos():
   
   return jsonify({'positions':positions})
   
-def prepare_for_json_set(item):
+def prepare_for_json(item):
   settings = dict()
   
   
