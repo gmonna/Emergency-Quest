@@ -107,6 +107,21 @@ def load_calendar():
   
   return jsonify({'calendar':calendar})
   
+@app.route('/rest_api/v1.0/calendar/<int:code>', methods=['DELETE'])
+def delete_appointment(code):
+  mail = session['mail']
+  
+  db_app_interaction.delete_appointment(mail, int(code))
+  return Response(status=200)
+  
+@app.route('/rest_api/v1.0/calendar/<int:code>', methods=['PUT'])
+def delete_appointment(code):
+  mail = session['mail']
+  update_req = request.json
+  #--
+  db_app_interaction.update_appointment(mail, int(code), data, ora, message)
+  return Response(status=200)
+  
 def prepare_for_json_set(item):
   settings = dict()
   settings['perimeter'] = item[0]
@@ -120,8 +135,9 @@ def prepare_for_json_set(item):
 
 def prepare_for_json_tot(item)
   tot = dict()
-  tot['data'] = item[0]
-  tot['ora'] = item[1]
-  tot['message'] = item[2]
+  tot['code'] = item[0]
+  tot['data'] = item[1]
+  tot['ora'] = item[2]
+  tot['message'] = item[3]
   
   return tot
