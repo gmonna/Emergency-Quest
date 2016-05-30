@@ -6,7 +6,7 @@ Created on May 30, 2016
 """
 
 from flask import Flask, jsonify, abort, request, Response
-import db_interaction
+import db_app_interaction
 
 app = Flask(__name__)
 
@@ -17,7 +17,7 @@ def new_user:
   
   if (insert_request is not None) and ('name' and 'surname' and 'mail' and 'password' and 'bcod') in insert_request:
     bcod = insert_request['bcod']
-    bc = db_interaction.get_code(bcod)
+    bc = db_app_interaction.get_code(bcod)
     if bc is None:
       abort(404)
       
@@ -26,7 +26,7 @@ def new_user:
     name = insert_request['name']
     surname = insert_request['surname']
     
-    db_interaction.sign_up(bcod, mail, password, name, surname)
+    db_app_interaction.sign_up(bcod, mail, password, name, surname)
     return Response(status=200)
   
   abort(403)
