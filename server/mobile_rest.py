@@ -159,12 +159,6 @@ def get_pos():
     positions.append(po)
   
   return jsonify({'positions':positions})
-  
-def prepare_for_json(item):
-  settings = dict()
-  
-  
-  return settings
 
 def prepare_for_json(item)
   tot = dict()
