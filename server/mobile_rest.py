@@ -179,7 +179,7 @@ def prepare_for_json(item)
     tot['longitude'] = item[1]
     tot['ora'] = item[2]
   if (len(item)==4):
-    tot['code'] = item[0]
+    tot['read'] = item[0]
     tot['data'] = item[1]
     tot['ora'] = item[2]
     tot['message'] = item[3]
