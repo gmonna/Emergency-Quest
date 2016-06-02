@@ -156,7 +156,7 @@ def get_history(mail):
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
-  sql = "SELECT code, data, ora, message FROM HISTORY WHERE mail=?"
+  sql = "SELECT read, data, ora, message FROM HISTORY WHERE mail=?"
 
   cursor.execute(sql, (mail, ))
   history = cursor.fetchall()
