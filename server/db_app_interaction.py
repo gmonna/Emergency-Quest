@@ -162,6 +162,23 @@ def get_history(mail):
   history = cursor.fetchall()
 
   return history
+
+def history_all_read(mail):
+  """
+  Set all notifications as read after opening history page
+  """
+  history = []
+  
+  conn = sqlite3.connect("database.db")
+  conn.text_factory = sqlite3.OptimezedUnicode
+  cursor = conn.cursor()
+  
+  sql = "UPDATE HISTORY SET read=y WHERE mail=?"
+
+  cursor.execute(sql, (mail, ))
+  history = cursor.fetchall()
+
+  return history
   
 def delete_history(mail):
   """
