@@ -199,3 +199,4 @@ def prepare_for_json(item)
     tot['auto_clean'] = item[5]
   
   return tot
+#------ APIs END ------#
