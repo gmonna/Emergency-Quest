@@ -180,18 +180,20 @@ def history_all_read(mail):
 
   return history
   
-def delete_history(mail):
+def delete_history_doneappo(mail):
   """
-  Delete patient's history from database
+  Delete patient's history and done appointments from database every *x* time
   """
 
   conn = sqlite3.connect("database.db")
   cursor = conn.cursor()
   
   sql = "DELETE FROM HISTORY WHERE mail=?"
+  sql2 = "DELETE FROM CALENDAR WHERE mail=? AND done=y"
   
   try:
     cursor.execute(sql, (mail, ))
+    cursor.execute(sql2, (mail, ))
     conn.commit()
   except Exception, e:
     err = str(e)
