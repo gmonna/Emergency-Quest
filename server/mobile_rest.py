@@ -33,8 +33,6 @@ def new_user():
   
 @app.route('/rest_api/v1.0/signin', methods=['GET'])
 def log_in():
-  if(session['mail']):
-    abort(501)
   mail = request.args.get('mail')
   bcod = db_app_interaction.code_bymail(mail)
   if bcode is None:
@@ -46,6 +44,11 @@ def log_in():
   session['name'] = user['name']
   session['surname'] = user['surname']
   return Response(status=200)
+
+@app.route('/rest_api/v1.0/already_signin', methods=['GET'])
+def al_log_in():
+  if(session['mail']):
+    return Response(status=200)
   
 @app.route('/rest_api/v1.0/logout')
 def log_out():
