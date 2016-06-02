@@ -185,7 +185,7 @@ def prepare_for_json(item)
     tot['ora'] = item[2]
     tot['message'] = item[3]
   if (len(item)==5):
-    tot['code'] = item[0]
+    tot['done'] = item[0]
     tot['titolo'] = item[1]
     tot['data'] = item[2]
     tot['ora'] = item[3]
