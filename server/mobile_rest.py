@@ -10,7 +10,7 @@ import db_app_interaction
 
 app = Flask(__name__)
 
-#----------- REST SERVER ----------#
+#----------- REST APIs FOR APP ----------#
 @app.route('/rest_api/v1.0/signup', methods=['POST'])
 def new_user():
   insert_request = request.json
