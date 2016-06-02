@@ -50,7 +50,7 @@ def al_log_in():
   if(session['mail']):
     return Response(status=200)
   
-@app.route('/rest_api/v1.0/logout')
+@app.route('/rest_api/v1.0/logout', methods=['GET'])
 def log_out():
   del session['mail']
   del session['name']
