@@ -105,6 +105,7 @@ def load_settings():
     his = prepare_for_json(item)
     history.append(his)
   
+  db_app_interaction.history_all_read(mail)
   return jsonify({'history':history})
   
 @app.route('/rest_api/v1.0/get_calendar', methods=['GET'])
