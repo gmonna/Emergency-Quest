@@ -129,7 +129,7 @@ def set_settings(mail, perimeter, colour, song, doct, message, auto_clean, first
   Set preferences distinguishing between new user and already registered user
   """
   
-  if (first):
+  if (first=="y"):
     sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, mail) VALUES (?, ?, ?, ?, ?, ?, ?)"
   else:
     sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=? WHERE mail=?"
