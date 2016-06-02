@@ -155,7 +155,7 @@ def get_pos():
   positions = []
   ps = db_app_interaction.get_positions(mail)
   for item in ps:
-    po = prepare_for_json_pos(item)
+    po = prepare_for_json(item)
     positions.append(po)
   
   return jsonify({'positions':positions})
