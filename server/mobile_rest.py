@@ -96,7 +96,7 @@ def settings():
   abort(403)
 
 @app.route('/rest_api/v1.0/get_history', methods=['GET'])
-def load_settings():
+def load_history():
   mail = session['mail']
   
   history = []
