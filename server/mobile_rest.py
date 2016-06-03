@@ -124,18 +124,29 @@ def load_calendar():
 def insert_appointment():
   req = request.json
   
-  if (req is not None) and ('titolo' and 'data' and 'ora' and 'message') in req:
+  if (req is not None) and ('title' and 'description' and 'data' and 'ora' and 'message' and 'priority' and 'repeat') in req:
     
     mail = session['mail']
-    titolo = req['titolo']
+    titolo = req['title']
     data = req['data']
     ora = req['ora']
     message = req['message']
+    description = req['description']
+    priority = req['priority']
+    repeat = req['repeat']
     
-    db_app_interaction.set_appointment(mail, titolo, data, ora, message)
+    db_app_interaction.set_appointment(mail, description, titolo, data, ora, message, priority, repeat)
     return Response(status=200)
   
   abort(403)
+
+@app.route('/rest_api/v1.0/calendar/<int:code>', methods=['GET'])
+def view_appointment(int(code)):
+  mail = session['mail']
+  
+  appo = db_app_interaction.select_appointment(mail, int(code))
+  appointment = prepare_for_json(appo)
+  return jsonify({'appointment':appointment})
   
 @app.route('/rest_api/v1.0/calendar/<int:code>', methods=['DELETE'])
 def delete_appointment(int(code)):
@@ -149,14 +160,17 @@ def update_appointment(int(code)):
   mail = session['mail']
   update_req = request.json
   
-  if update_req is not None and ('mail' and 'code' and 'titolo' and 'data' and 'ora' and 'message') in update_req:
+  if update_req is not None and ('mail' and 'code' and 'title' and 'description' and 'data' and 'ora' and 'message' and 'priority' and 'repeat') in update_req:
     code = update_req['code']
-    titolo = update_req['titolo']
+    titolo = update_req['title']
     data = update_req['data']
     ora = update_req['ora']
     message = update_req['message']
+    description = update_req['description']
+    priority = update_req['priority']
+    repeat = update_req['repeat']
     
-    db_app_interaction.update_appo(mail, int(code), titolo, data, ora, message)
+    db_app_interaction.update_appo(mail, int(code), titolo, description, data, ora, message, priority, repeat)
     return Response(status=200)
   
   abort(403)
