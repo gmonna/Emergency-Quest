@@ -211,7 +211,7 @@ def get_calendar(mail):
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
-  sql = "SELECT code, title, description, data, ora, message, priority, repeat FROM CALENDAR WHERE mail=?"
+  sql = "SELECT code, title, description, done, data, ora, message, priority, repeat FROM CALENDAR WHERE mail=?"
 
   cursor.execute(sql, (mail, ))
   calendar = cursor.fetchall()
@@ -226,10 +226,11 @@ def set_appointment(mail, description, title, data, ora, message, priority, repe
   
   conn = sqlite3.connect("database.db")
   cursor = conn.cursor()
-  sql = "INSERT INTO CALENDAR(mail, description, title, data, ora, message, priority, repeat) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+  done = "n"
+  sql = "INSERT INTO CALENDAR(mail, description, title, done, data, ora, message, priority, repeat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
   
   try:
-    cursor.execute(sql, (mail, decription, title, data, ora, message, priority, repeat))
+    cursor.execute(sql, (mail, decription, title, done, data, ora, message, priority, repeat))
     conn.commit()
   except Exception, e:
     print str(e)
