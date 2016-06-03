@@ -160,7 +160,7 @@ def update_appointment(int(code)):
   mail = session['mail']
   update_req = request.json
   
-  if update_req is not None and ('mail' and 'code' and 'title' and 'description' and 'data' and 'ora' and 'message' and 'priority' and 'repeat') in update_req:
+  if update_req is not None and ('code' and 'title' and 'description' and 'data' and 'ora' and 'message' and 'priority' and 'repeat') in update_req:
     code = update_req['code']
     titolo = update_req['title']
     data = update_req['data']
