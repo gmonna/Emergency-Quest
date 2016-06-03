@@ -211,10 +211,28 @@ def get_calendar(mail):
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
-  sql = "SELECT code, title, description, done, data, ora, message, priority, repeat FROM CALENDAR WHERE mail=?"
+  sql = "SELECT code, title, done, data, ora FROM CALENDAR WHERE mail=?"
 
   cursor.execute(sql, (mail, ))
   calendar = cursor.fetchall()
+
+  conn.close()
+  return calendar
+  
+def select_appointment(mail, code):
+  """
+  Get patient's specific appointment
+  """
+  calendar = []
+  
+  conn = sqlite3.connect("database.db")
+  conn.text_factory = sqlite3.OptimezedUnicode
+  cursor = conn.cursor()
+  
+  sql = "SELECT title, description, data, ora, message, priority, repeat FROM CALENDAR WHERE mail=? AND code=?"
+
+  cursor.execute(sql, (mail, code ))
+  calendar = cursor.fetchone()
 
   conn.close()
   return calendar
