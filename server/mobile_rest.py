@@ -189,7 +189,7 @@ def prepare_for_json(item)
     tot['titolo'] = item[1]
     tot['data'] = item[2]
     tot['ora'] = item[3]
-    tot['message'] = item[4]
+    tot['code'] = item[4]
   if (len(item)==6):
     tot['perimeter'] = item[0]
     tot['colour'] = item[1]
@@ -197,6 +197,14 @@ def prepare_for_json(item)
     tot['doct'] = item[3]
     tot['message'] = item[4]
     tot['auto_clean'] = item[5]
+  if (len(item)==7):
+    tot['title'] = item[0]
+    tot['description'] = item[1]
+    tot['data'] = item[2]
+    tot['ora'] = item[3]
+    tot['message'] = item[4]
+    tot['priority'] = item[5]
+    tot['repeat'] = item[6]
   
   return tot
 #------ APIs END ------#
