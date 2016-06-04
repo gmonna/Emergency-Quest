@@ -174,8 +174,12 @@ def update_appointment(int(code)):
     return Response(status=200)
   
   abort(403)
+  
+@app.route('/rest_api/v1.0/get_position', methods=['GET']) #--TODO--#
+def get_position():
+  return None
 
-def prepare_for_json(item)
+def prepare_for_json(item):
   tot = dict()
 
   if (len(item)==4):
