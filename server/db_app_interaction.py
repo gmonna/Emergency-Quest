@@ -291,18 +291,3 @@ def update_appo(mail, code, title, description, data, ora, message, priority, re
     conn.rollback()
     
   conn.close()
-
-def get_positions(mail):
-  """
-  Get past positions during the day for the patient
-  """
-  positions = []
-  
-  conn = sqlite3.connect("database.db")
-  cursor = conn.cursor()
-  sql = "SELECT latitude, longitude, ora FROM POSITION WHERE mail=?"
-  
-  cursor.execute(sql, (mail, ))
-  positions = cursor.fetchall()
-  
-  conn.close()
