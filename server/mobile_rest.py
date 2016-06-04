@@ -175,24 +175,9 @@ def update_appointment(int(code)):
   
   abort(403)
 
-@app.route('/rest_api/v1.0/get_positions', methods=['GET'])
-def get_pos():
-  mail = session['mail']
-  
-  positions = []
-  ps = db_app_interaction.get_positions(mail)
-  for item in ps:
-    po = prepare_for_json(item)
-    positions.append(po)
-  
-  return jsonify({'positions':positions})
-
 def prepare_for_json(item)
   tot = dict()
-  if (len(item)==3):
-    tot['latitude'] = item[0]
-    tot['longitude'] = item[1]
-    tot['ora'] = item[2]
+
   if (len(item)==4):
     tot['read'] = item[0]
     tot['data'] = item[1]
