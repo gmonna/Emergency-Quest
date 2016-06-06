@@ -12,7 +12,7 @@ def get_code(bcod):
   Check if bcod inserted by user is present
   """
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimizedUnicode
   cursor = conn.cursor()
   
@@ -27,7 +27,7 @@ def code_byemail(mail):
   """
   Check if mail is connected to any bcode
   """
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimizedUnicode
   cursor = conn.cursor()
   
@@ -43,7 +43,7 @@ def sign_in(mail, password):
   Log in to the system
   """
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
@@ -60,7 +60,7 @@ def sign_up(bcod, mail, password, name, surname):
   Sign up to the system
   """
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   cursor = conn.cursor()
   sql = "INSERT INTO USERS(bcod, mail, password, name, surname) VALUES (?, ?, ?, ?, ?)"
   
@@ -78,7 +78,7 @@ def lost_password(mail):
   Send password to user
   """
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
@@ -112,7 +112,7 @@ def get_settings(mail)
   Get current settings for the user
   """
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
@@ -134,7 +134,7 @@ def set_settings(mail, perimeter, colour, song, doct, message, auto_clean, first
   else:
     sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=? WHERE mail=?"
     
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   cursor = conn.cursor()
   
   try:
@@ -152,7 +152,7 @@ def get_history(mail):
   """
   history = []
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
@@ -169,7 +169,7 @@ def history_all_read(mail):
   """
   history = []
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
@@ -185,7 +185,7 @@ def delete_history_doneappo(mail):
   Delete patient's history and done appointments from database every *x* time
   """
 
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   cursor = conn.cursor()
   
   sql = "DELETE FROM HISTORY WHERE mail=?"
@@ -207,7 +207,7 @@ def get_calendar(mail):
   """
   calendar = []
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
@@ -225,7 +225,7 @@ def select_appointment(mail, code):
   """
   calendar = []
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   conn.text_factory = sqlite3.OptimezedUnicode
   cursor = conn.cursor()
   
@@ -242,7 +242,7 @@ def set_appointment(mail, description, title, data, ora, message, priority, repe
   Add an appointment to the calendar
   """
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   cursor = conn.cursor()
   done = "n"
   sql = "INSERT INTO CALENDAR(mail, description, title, done, data, ora, message, priority, repeat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -261,7 +261,7 @@ def delete_appointment(mail, code):
   Add an appointment to the calendar
   """
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   cursor = conn.cursor()
   sql = "DELETE FROM CALENDAR WHERE mail=? AND code=?"
   
@@ -279,7 +279,7 @@ def update_appo(mail, code, title, description, data, ora, message, priority, re
   Update an appointment into the calendar
   """
   
-  conn = sqlite3.connect("database.db")
+  conn = sqlite3.connect("db/database.db")
   cursor = conn.cursor()
   sql = "UPDATE CALENDAR SET title=? AND description=? AND data=? AND ora=? AND message=? AND priority=? AND repeat=? WHERE mail=? AND code=?"
   
