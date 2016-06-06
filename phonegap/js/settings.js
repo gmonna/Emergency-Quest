@@ -1,0 +1,64 @@
+// JavaScript Document
+$(document).ready(function () {
+	var first = '<%= Session["first"] %>';
+	if(first!=='y') {
+    	get_settings();
+	}
+
+    $('form#email-form').submit(function (event) {
+        set_settings(event);
+    });
+});
+
+function get_settings() {
+	var no = "n";
+	'<%Session["first"] = "' + no + '"; %>'
+	
+    $.ajax(
+        '/rest_api/v1.0/get_settings',
+        {
+            method: "GET",
+            dataType: "json",
+            success: function (data, status) {
+                var settings = data.settings;
+                document.getElementById("radius-field").value = settings.perimeter;
+        		document.getElementById("colour-"+settings.colour).checked = true;
+				document.getElementById("song-"+settings.song).checked = true;
+				document.getElementById("mess-field").value = settings.message;
+                document.getElementById("doc-field").value = settings.doct;
+				document.getElementById("auto_clean-"+settings.auto_clean).checked = true;
+			},
+			error: function(xhr, textStatus, errorThrown) {
+       				alert('Unknown error, charging preferences was impossible.');
+    		}
+        }
+    );
+}
+
+function set_settings(event) {
+	var perimeter = $("input[name='radius-field']").val();
+	var message = $("input[name='mess-field']").val();
+    var doct = $("input[name='doc-field']").val();
+    var colour = $("input[name='colour']:checked").val();
+	var song = $("input[name='song']:checked").val();
+	var auto = $("input[name='auto_clean']:checked").val();
+	var first = '<%= Session["first"] %>';
+
+    var json = {perimeter: perimeter, message: message, doct: doct, colour: colour, song: song, auto_clean: auto, first: first};
+
+    	$.ajax("/rest_api/v1.0/signup",
+        	{
+            	method: 'POST',
+            	contentType: 'application/json',
+            	data: JSON.stringify(json),
+            	success: function (data, status) {
+					alert('Settings successfully updated.');
+                },
+				error: function(xhr, textStatus, errorThrown) {
+       				alert('There was an unknown error and it was impossible to change settings.');
+    			}
+        	 }
+    	);
+    //avoid form submission (the default action of the event)
+    event.preventDefault();
+}
