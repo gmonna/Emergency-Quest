@@ -6,7 +6,7 @@ $(document).ready(function () {
 
 function get_position() {
     $.ajax(
-        '/rest_api/v1.0/get_position',
+        'http://127.0.0.1:5000/rest_api/v1.0/get_position',
         {
             method: "GET",
             dataType: "json",
@@ -20,7 +20,7 @@ function get_position() {
     			});
 			},
 			error: function(xhr, textStatus, errorThrown) {
-       				alert('Unknown error, charging past position during this day was impossible.');
+       				alert('Unknown error, charging position is impossible.');
     		}
         }
     );

@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <title>Settings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Access-Control-Allow-Origin" content="*">
   
   <link rel="stylesheet" type="text/css" href="css/normalize.css">
   <link rel="stylesheet" type="text/css" href="css/framework.css">
@@ -51,14 +52,14 @@
                 <div class="icon ion-ios-paper-outline"></div>
               </div>
               <div class="nav-menu-titles">History</div>
-              <div class="nav-menu-text-right">14</div>
+              <div class="nav-menu-text-right" id="his"></div>
             </a>
             <a class="w-clearfix w-inline-block nav-menu-link" href="calendar.html" data-load="1">
               <div class="icon-list-menu">
                 <div class="icon ion-ios-list-outline"></div>
               </div>
               <div class="nav-menu-titles">Calendar</div>
-              <div class="nav-menu-text-right">8</div>
+              <div class="nav-menu-text-right" id="cal"></div>
             </a>
             <a class="w-clearfix w-inline-block nav-menu-link" href="about-us.html" data-load="1">
               <div class="icon-list-menu">
@@ -90,7 +91,7 @@
       <div class="body padding">
         <div class="logo-login smaller"></div>
         <div class="w-form">
-          <form id="email-form" name="email-form" data-name="Email Form" action="#">
+          <form id="settings-form" name="email-form" data-name="Email Form" action="#">
             <div>
               <label class="label-form" for="full-name-field">MAP RADIUS</label>
               <input class="w-input input-form" id="radius-field" type="number" min="1" max="25" name="radius" data-name="radius" required="required">
@@ -102,18 +103,18 @@
                 <div class="w-clearfix radios-container">
                   <div class="w-radio w-clearfix radio-button">
                     <div class="radio-bullet-replacement"></div>
-                    <input class="w-radio-input radio-bullet" id="colour-3" type="radio" name="colour" value="1" data-name="colour">
-                    <label class="w-form-label" for="colour-3">3</label>
+                    <input class="w-radio-input radio-bullet" id="colour-3" type="radio" name="colour" value="blue" data-name="colour">
+                    <label class="w-form-label" for="colour-3">Blue</label>
                   </div>
                   <div class="w-radio w-clearfix radio-button">
                     <div class="radio-bullet-replacement checked"></div>
-                    <input class="w-radio-input radio-bullet" id="colour-2" type="radio" name="colour" value="2" data-name="colour">
-                    <label class="w-form-label" for="colour-2">2</label>
+                    <input class="w-radio-input radio-bullet" id="colour-2" type="radio" name="colour" value="red" data-name="colour">
+                    <label class="w-form-label" for="colour-2">Red</label>
                   </div>
                   <div class="w-radio w-clearfix radio-button">
                     <div class="radio-bullet-replacement"></div>
-                    <input class="w-radio-input radio-bullet" id="colour-1" type="radio" name="colour" value="3" data-name="colour">
-                    <label class="w-form-label" for="colour-1">1</label>
+                    <input class="w-radio-input radio-bullet" id="colour-1" type="radio" name="colour" value="yellow" data-name="colour">
+                    <label class="w-form-label" for="colour-1">Yellow</label>
                   </div>
                 </div>
               </div>
@@ -125,18 +126,18 @@
                 <div class="w-clearfix radios-container">
                   <div class="w-radio w-clearfix radio-button">
                     <div class="radio-bullet-replacement"></div>
-                    <input class="w-radio-input radio-bullet" id="song-3" type="radio" name="song" value="1" data-name="song">
-                    <label class="w-form-label" for="song-3">3</label>
+                    <input class="w-radio-input radio-bullet" id="song-3" type="radio" name="song" value="relax" data-name="song">
+                    <label class="w-form-label" for="song-3">Relax</label>
                   </div>
                   <div class="w-radio w-clearfix radio-button">
                     <div class="radio-bullet-replacement checked"></div>
-                    <input class="w-radio-input radio-bullet" id="song-2" type="radio" name="song" value="2" data-name="song">
-                    <label class="w-form-label" for="song-2">2</label>
+                    <input class="w-radio-input radio-bullet" id="song-2" type="radio" name="song" value="concentrate" data-name="song">
+                    <label class="w-form-label" for="song-2">Concentrate</label>
                   </div>
                   <div class="w-radio w-clearfix radio-button">
                     <div class="radio-bullet-replacement"></div>
-                    <input class="w-radio-input radio-bullet" id="song-1" type="radio" name="song" value="3" data-name="song">
-                    <label class="w-form-label" for="song-1">1</label>
+                    <input class="w-radio-input radio-bullet" id="song-1" type="radio" name="song" value="remind" data-name="song">
+                    <label class="w-form-label" for="song-1">Remind</label>
                   </div>
                 </div>
               </div>
@@ -193,6 +194,7 @@
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/framework.js"></script>
   <script type="text/javascript" src="js/settings.js"></script>
+  <!-- <script type="text/javascript" src="js/numbers.js"></script> -->
   <!--[if lte IE 9]><script src="js/placeholders.min.js"></script><![endif]-->
 </body>
 </html>

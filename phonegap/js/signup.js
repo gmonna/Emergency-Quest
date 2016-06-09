@@ -2,7 +2,7 @@
 // JavaScript Document
 $(document).ready(function () {
     //set what happens when the "Enter" button is pressed
-    $('form#submit-form').submit(function (event) {
+    $('form#signup-form').submit(function (event) {
         signup(event);
     });
 });
@@ -23,7 +23,7 @@ function signup(event) {
         alert('Password must be at least of 8 characters!');
         event.preventDefault();
     } else {	
-    	$.ajax("/rest_api/v1.0/signup",
+    	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/signup",
         	{
             	method: 'POST',
             	contentType: 'application/json',
@@ -31,7 +31,8 @@ function signup(event) {
             	success: function (data, status) {
 					var first = "y";
     				'<%Session["first"] = "' + first + '"; %>';
-                    window.location='settings.html'
+                    window.location.assign('login.html');
+					alert('A new account has been created, you can log in now.');
                 },
 				error: function(xhr, textStatus, errorThrown) {
        				alert('There was an error and it was impossible to create the new user. Maybe you inserted a wrong bracelet code, check it!');

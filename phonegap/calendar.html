@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <title>Calendar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Access-Control-Allow-Origin" content="*">
   
   <link rel="stylesheet" type="text/css" href="css/normalize.css">
   <link rel="stylesheet" type="text/css" href="css/framework.css">
@@ -51,14 +52,14 @@
                 <div class="icon ion-ios-paper-outline"></div>
               </div>
               <div class="nav-menu-titles">History</div>
-              <div class="nav-menu-text-right">14</div>
+              <div class="nav-menu-text-right" id="his"></div>
             </a>
             <a class="w-clearfix w-inline-block nav-menu-link" href="calendar.html" data-load="1">
               <div class="icon-list-menu">
                 <div class="icon ion-ios-list-outline"></div>
               </div>
               <div class="nav-menu-titles">Calendar</div>
-              <div class="nav-menu-text-right">8</div>
+              <div class="nav-menu-text-right" id="cal"></div>
             </a>
             <a class="w-clearfix w-inline-block nav-menu-link" href="about-us.html" data-load="1">
               <div class="icon-list-menu">
@@ -94,105 +95,12 @@
         <div class="hero-image">
           <div class="hero-image-title">
             <h2>Appointments</h2>
-            <div class="sub-title-small" style="color: inherit;">&nbsp;3 of 10 tasks &nbsp;|&nbsp;&nbsp;75% completed</div>
           </div>
           <div class="hero-image-img"><img src="images/photo-1429032021766-c6a53949594f.jpg">
           </div>
         </div>
         <ul class="list" id="calendar-list">
-          <li class="list-item grey highlighted" data-ix="list-item">
-            <a class="w-clearfix w-inline-block highlighted" href="#">
-              <div class="icon-list highlighted">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Create a Website</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
-          <li class="list-item" data-ix="list-item">
-            <a class="w-clearfix w-inline-block" href="#">
-              <div class="icon-list">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Buy a new car</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-            <div class="right-list">
-              <a style="color: inherit;"><div class="icon ion-ios-close-empty"></div><a>
-            </div>
-          </li>
-          <li class="list-item grey highlighted" data-ix="list-item">
-            <a class="w-clearfix w-inline-block highlighted" href="#">
-              <div class="icon-list highlighted">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Call Mom</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
-          <li class="list-item" data-ix="list-item">
-            <a class="w-clearfix w-inline-block" href="#">
-              <div class="icon-list">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Go to gym</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
-          <li class="list-item" data-ix="list-item">
-            <a class="w-clearfix w-inline-block" href="#">
-              <div class="icon-list">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Increase Sales Revenue</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
-          <li class="list-item" data-ix="list-item">
-            <a class="w-clearfix w-inline-block" href="#">
-              <div class="icon-list">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Hire New Developer</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
-          <li class="list-item grey highlighted" data-ix="list-item">
-            <a class="w-clearfix w-inline-block" href="#">
-              <div class="icon-list highlighted">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list highlighted">Define new Strategy</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
-          <li class="list-item" data-ix="list-item">
-            <a class="w-clearfix w-inline-block" href="#">
-              <div class="icon-list">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Develop new Marketing Campaign</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
-          <li class="list-item" data-ix="list-item">
-            <a class="w-clearfix w-inline-block" href="#">
-              <div class="icon-list">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Hire Accountant</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
-          <li class="list-item" data-ix="list-item">
-            <a class="w-clearfix w-inline-block" href="#">
-              <div class="icon-list">
-                <div class="icon ion-ios-checkmark-empty"></div>
-              </div>
-              <div class="title-list">Meet John</div>
-              <div class="sub-title-small" style="color: inherit;">22/11/1994 &nbsp;|&nbsp; 08:30</div>
-            </a>
-          </li>
+          
         </ul>
       </div>
     </div>
@@ -206,6 +114,7 @@
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/framework.js"></script>
   <script type="text/javascript" src="js/calendar.js"></script>
+  <!-- <script type="text/javascript" src="js/numbers.js"></script> -->
   <!--[if lte IE 9]><script src="js/placeholders.min.js"></script><![endif]-->
 </body>
 </html>
