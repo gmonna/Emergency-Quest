@@ -197,8 +197,8 @@
                         <li><strong>System</strong>: all parts that shape Emergency Quest, divided in:
                             <ol>
                                 <li><strong>APP</strong>: tool for interaction between system and users;</li>
-                                <li><strong>SERVER</strong>: sensor data storage and processing;</li>
-                                <li><strong>ROOM</strong>: the whole set of sensors, including bracelet recognizing agitation and detecting position, and motion sensor all around the house.</li>
+                                <li><strong>SERVER</strong>: users data storage and set of funtions to interact with system;</li>
+                                <li><strong>ROOM</strong>: the whole set of sensors, including bracelet recognizing agitation and detecting position, and motion sensor all around the house, connected to a room central station that manages sensor data and controls actuators.</li>
                             </ol> 
                         </li><br>
                     </ul>
@@ -246,11 +246,11 @@
                         </tr>
                         <tr>
                             <td>SERVER</td>
-                            <td>How the server is configured and how it works.</td>
+                            <td>How the main server is configured and how it works.</td>
                         </tr>
                         <tr>
                             <td>ROOM</td>
-                            <td>How the room senses and interacts with the user.</td>
+                            <td>How the room station senses and interacts with the user.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -381,48 +381,12 @@
             <div class="row">
                 <p class="text-muted">
                     <ul>
-                        <li><strong>FR SERVER.1</strong>: Position processing
-                            <ul style="list-style-type: circle;">
-                                <li>The server should be able to process GPS data and give the user the possibility to always access patient current position.</li>
-                                <li>Priority 1</li>
-                            </ul>
-                        </li><br>
-                        <li><strong>FR SERVER.2</strong>: Data reasoning
-                            <ul style="list-style-type: circle;">
-                                <li>The server selects the right action to do, distinguishing when it's necessary to relax the patient or to lock doors and windows in a dangerous condition (processing sensor data).</li>
-                                <li>Priority 1</li>
-                            </ul>
-                        </li><br>
-                        <li><strong>FR SERVER.3</strong>: Environment changing
-                            <ul style="list-style-type: circle;">
-                                <li>The server, in order to relax the patient during an "agitation" condition, may play the correct instructions and music to relax by the speakers in the room, may control lights, following user's preferences previously set-up. </li>
-                                <li>Priority 1</li>
-                            </ul>
-                        </li><br>
                         <li><strong>FR SERVER.4</strong>: Preferences management
                             <ul style="list-style-type: circle;">
                                 <li>The server manages user preferences.</li>
                                 <li>Priority 2</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR SERVER.5</strong>: Take-off notifying
-                            <ul style="list-style-type: circle;">
-                                <li>The server sends a notification within the mobile app if it detects that the patient takes off the bracelet.</li>
-                                <li>Priority 3</li>
-                            </ul>
-                        </li><br>
-                        <li><strong>FR SERVER.6</strong>: Positions storing
-                            <ul style="list-style-type: circle;">
-                                <li>The server traces previous GPS positions of the patient and makes them accessible from the mobile app.</li>
-                                <li>Priority 5</li>
-                            </ul>
-                        </li><br>
-                        <li><strong>FR SERVER.7</strong>: Emergency locking
-                            <ul style="list-style-type: circle;">
-                                <li>The server locks doors and windows in case of extreme conditions, if it detects unusual behavior by processing "agitation" data.</li>
-                                <li>Priority 5</li>
-                            </ul>
-                        </li>
                     </ul>
                 </p>
             </div>
@@ -436,16 +400,52 @@
                                 <li>Priority 1</li>
                             </ul>
                         </li><br>
+                        <li><strong>FR ROOM.2</strong>: Environment changing
+                            <ul style="list-style-type: circle;">
+                                <li>The room station, in order to relax the patient during an "agitation" condition, may play the correct instructions and music to relax by the speakers in the room, may control lights, following user's preferences previously set-up. </li>
+                                <li>Priority 1</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR ROOM.3</strong>: Position processing
+                            <ul style="list-style-type: circle;">
+                                <li>The room station should be able to process GPS data and send data to main server.</li>
+                                <li>Priority 1</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR ROOM.4</strong>: Data reasoning
+                            <ul style="list-style-type: circle;">
+                                <li>The room station selects the right action to do, distinguishing when it's necessary to relax the patient or to lock doors and windows in a dangerous condition (processing sensor data).</li>
+                                <li>Priority 1</li>
+                            </ul>
+                        </li><br>
                         <li><strong>FR ROOM.2</strong>: Internet connection
                             <ul style="list-style-type: circle;">
-                                <li>The room automatically connects to the server, using the home internet connection.</li>
+                                <li>The room station automatically connects to the main server, using the home internet connection.</li>
                                 <li>Priority 2</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR ROOM.5</strong>: Take-off notifying
+                            <ul style="list-style-type: circle;">
+                                <li>The room station sends a notification to the main server if it detects that the patient takes off the bracelet.</li>
+                                <li>Priority 3</li>
                             </ul>
                         </li><br>
                         <li><strong>FR ROOM.3</strong>: Instant processing
                             <ul style="list-style-type: circle;">
-                                <li>The room may process partial information from the sensors without interacting with the server for a quicker and faster response.</li>
-                                <li>Priority 3</li>
+                                <li>Sensors may process partial information without interacting with the room station board for a quicker and faster response.</li>
+                                <li>Priority 4</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR ROOM.6</strong>: Positions storing
+                            <ul style="list-style-type: circle;">
+                                <li>The room station traces previous GPS positions of the patient and makes them accessible from the mobile app.</li>
+                                <li>Priority 5</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR ROOM.7</strong>: Emergency locking
+                            <ul style="list-style-type: circle;">
+                                <li>The room station locks doors and windows in case of extreme conditions, if it detects unusual behavior by processing "agitation" data.</li>
+                                <li>Priority 5</li>
                             </ul>
                         </li>
                     </ul>
