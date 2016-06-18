@@ -13,18 +13,8 @@ function signup(event) {
     var password = $("input[name='password']").val();
 	var password2 = $("input[name='password2']").val();
 	var bcod = $("input[name='bcod']").val();
-	var anorapp = ''; var deviceid = '';
-	if (userAgent.match( /Android/i )) anorapp = 'android';
-	else anorapp = 'ios';
-	
-	var push = PushNotification.init({ "android": {"senderID": "836442599686"},
-         "ios": {"alert": "true", "badge": "true", "sound": "true"}});
 
-    push.on('registration', function(data) {
-       	deviceid = data.registrationId;
-    });
-
-    var json = {name: name, surname: surname, email: email, password: password, bcod: bcod, anorapp:anorapp, deviceid:deviceid};
+    var json = {name: name, surname: surname, email: email, password: password, bcod: bcod};
 	if(password!==password2) {
 		alert('The two passwords don\'t match.')	;
 		event.preventDefault();

@@ -24,8 +24,35 @@ function check_login() {
 function login(event) {
     var email = $("input[name='email']").val();
     var password = $("input[name='password']").val();
+	var anorapp = ''; var deviceid = '';
+	if (userAgent.match( /Android/i )) anorapp = 'android';
+	else anorapp = 'ios';
+	
+	var push = PushNotification.init({ "android": {"senderID": "836442599686"},
+         "ios": {"alert": "true", "badge": "true", "sound": "true"}});
 
-    var json = {email: email, password: password};
+    push.on('registration', function(data) {
+       	deviceid = data.registrationId;
+    });
+	
+	push.on('notification', function(data) {
+		cordova.plugins.notification.local.schedule({
+    		title: "New history notification",
+    		text: data.message,
+    		sound: "default",
+    		icon: "/images/logoStanford32.png"
+		});
+
+		cordova.plugins.notification.local.on("click", function (notification) {
+    		window.location.assign('history.html');
+		});
+	});
+
+	push.on('error', function(e) {
+		console.log(e.message);
+	});
+
+    var json = {email: email, password: password, deviceid:deviceid, anorapp:anorapp};
         $.ajax("http://127.0.0.1:5000/rest_api/v1.0/signin",
             {
                 method: 'POST',
