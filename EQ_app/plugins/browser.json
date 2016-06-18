@@ -4,13 +4,34 @@
         "uninstalled": []
     },
     "config_munge": {
-        "files": {}
+        "files": {
+            "config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"browser-package\" value=\"Device\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
     },
     "installed_plugins": {
         "phonegap-plugin-push": {
             "SENDER_ID": "836442599686",
             "PACKAGE_NAME": "com.ami.eq"
+        },
+        "de.appplant.cordova.plugin.local-notification": {
+            "PACKAGE_NAME": "com.ami.eq"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.ami.eq"
+        },
+        "cordova-plugin-app-event": {
+            "PACKAGE_NAME": "com.ami.eq"
+        }
+    }
 }
