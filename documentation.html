@@ -381,10 +381,22 @@
             <div class="row">
                 <p class="text-muted">
                     <ul>
-                        <li><strong>FR SERVER.4</strong>: Preferences management
+                        <li><strong>FR SERVER.1</strong>: Data storage
                             <ul style="list-style-type: circle;">
-                                <li>The server manages user preferences.</li>
-                                <li>Priority 2</li>
+                                <li>The main server stores everything about all users, like preferences, history, calendar.</li>
+                                <li>Priority 1</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR SERVER.2</strong>: Notification
+                            <ul style="list-style-type: circle;">
+                                <li>The main server must send a push notification to the correct devices when it receives a notification request from a specific user room station.</li>
+                                <li>Priority 1</li>
+                            </ul>
+                        </li><br>
+                        <li><strong>FR SERVER.4</strong>: Automatic cleaning
+                            <ul style="list-style-type: circle;">
+                                <li>The main server cleans automatically every pa.</li>
+                                <li>Priority 3</li>
                             </ul>
                         </li><br>
                     </ul>
@@ -418,31 +430,31 @@
                                 <li>Priority 1</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR ROOM.2</strong>: Internet connection
+                        <li><strong>FR ROOM.5</strong>: Internet connection
                             <ul style="list-style-type: circle;">
                                 <li>The room station automatically connects to the main server, using the home internet connection.</li>
                                 <li>Priority 2</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR ROOM.5</strong>: Take-off notifying
+                        <li><strong>FR ROOM.6</strong>: Take-off notifying
                             <ul style="list-style-type: circle;">
                                 <li>The room station sends a notification to the main server if it detects that the patient takes off the bracelet.</li>
                                 <li>Priority 3</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR ROOM.3</strong>: Instant processing
+                        <li><strong>FR ROOM.7</strong>: Instant processing
                             <ul style="list-style-type: circle;">
                                 <li>Sensors may process partial information without interacting with the room station board for a quicker and faster response.</li>
                                 <li>Priority 4</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR ROOM.6</strong>: Positions storing
+                        <li><strong>FR ROOM.8</strong>: Positions storing
                             <ul style="list-style-type: circle;">
                                 <li>The room station traces previous GPS positions of the patient and makes them accessible from the mobile app.</li>
                                 <li>Priority 5</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR ROOM.7</strong>: Emergency locking
+                        <li><strong>FR ROOM.9</strong>: Emergency locking
                             <ul style="list-style-type: circle;">
                                 <li>The room station locks doors and windows in case of extreme conditions, if it detects unusual behavior by processing "agitation" data.</li>
                                 <li>Priority 5</li>
@@ -471,7 +483,7 @@
                                 <li><strong>USABILITY</strong></li>
                             </ul>
                         </li>
-                        <li>NFR 4: always running server, able to notify 24/7 the user in case of dangerous conditions.
+                        <li>NFR 4: always running main server and always running room station, able to notify 24/7 the user in case of dangerous conditions.
                             <ul style="list-style-type: square;">
                                 <li><strong>SYSTEM READINESS</strong> (PERFORMANCE)</li>
                             </ul>
