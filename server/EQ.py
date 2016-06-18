@@ -6,15 +6,56 @@ Created on May 30, 2016
 """
 
 from flask import Flask, jsonify, abort, session, Response, make_response, request, current_app
+from flask_bootstrap import Bootstrap
 from datetime import timedelta
 from functools import update_wrapper
-import db_app_interaction, os
+from gcm import *
+from apns import APNs, Payload
+from apscheduler.schedulers.background import BackgroundScheduler
+import db_app_interaction, time, smtplib
 
 app = Flask(__name__)
+Bootstrap(app)
+gcm = GCM("AIzaSyBLfB5vNmQ2LbiEtxNNKwiid4GaB66Onkg")
+apns = APNs(use_sandbox=True, cert_file='cers/aps_prod_cert.pem', key_file='cers/aps_prod_key.pem', enhanced=True)
 
 app.secret_key = 'F12Zr47jyXRX@H!jmM]Lwf?KT'
 
+#---send push notifications to app, call this function to do it---#
+
+def send_push(email, message):
+    db_app_interaction.insert_notification(email, time.strftime("%Y-%m-%d"), time.strftime("%H:%M"), message)
+    send_email(email, message)
+    device = db_app_interaction.get_device_token(email)
+    if device['anorapp']=='ios':
+        payload = Payload(alert=message, sound="default", badge=1)
+        apns.gateway_server.send_notification(device['deviceid'], payload)
+    else:
+        data = {'message': message}
+        reg_id = device['deviceid']
+        gcm.plaintext_request(registration_id=reg_id, data=data)
+
+#---cron jobs to ask sensors and do auto_cleaning every day---#
+
+@app.before_first_request
+def initialize():
+    sched = BackgroundScheduler()
+
+    @sched.scheduled_job('interval', minutes=10)
+    def timed_job():
+        print('Use this type of function to call APIs for motion sensors.')
+
+    @sched.scheduled_job('cron', day_of_week='mon')
+    def auto_clean():
+        try:
+            db_app_interaction.delete_history_doneappo()
+        except Exception, e:
+            print "Impossible to do auto_clean cron job"
+
+    sched.start()
+
 #----grant access control-----#
+
 def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_to_all=True, automatic_options=True):
     if methods is not None:
         methods = ', '.join(sorted(x.upper() for x in methods))
@@ -55,81 +96,90 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_t
     return decorator
 
 #----------- REST APIs FOR APP ----------#
+
 @app.route('/rest_api/v1.0/signup', methods=['POST'])
 @crossdomain(origin='*')
 def new_user():
     insert_request = request.json
 
-    if (insert_request is not None) and ('name' and 'surname' and 'mail' and 'password' and 'bcod') in insert_request:
-      bcod = insert_request['bcod']
+    if (insert_request is not None) and ('name' and 'surname' and 'email' and 'password' and 'bcod' and 'deviceid' and 'anorapp') in insert_request:
+      bcod = insert_request.get('bcod')
       bc = db_app_interaction.get_code(bcod)
       if bc is None:
         abort(404)
 
-      mail = insert_request['mail']
-      em = db_app_interaction.code_byemail(mail)
+      email = insert_request.get('email')
+      em = db_app_interaction.check_presence(email, bcod)
       if em is not None:
-        abort(302) #--already existing user--#
-      password = insert_request['password']
-      name = insert_request['name']
-      surname = insert_request['surname']
+        abort(405) #--already existing user--#
+      password = insert_request.get('password')
+      name = insert_request.get('name')
+      surname = insert_request.get('surname')
+      deviceid = insert_request.get('deviceid')
+      anorapp = insert_request.get('anorapp')
 
-      db_app_interaction.sign_up(bcod, mail, password, name, surname)
-      return Response(status=200)
+      try:
+        db_app_interaction.sign_up(bcod, email, password, name, surname, deviceid, anorapp)
+        return Response(status=200)
+      except Exception, e:
+        return Response(status=500)
 
     abort(403)
 
-@app.route('/rest_api/v1.0/signin', methods=['GET'])
+@app.route('/rest_api/v1.0/signin', methods=['POST'])
 @crossdomain(origin='*')
 def log_in():
-    mail = request.args.get('mail')
-    bcod = db_app_interaction.code_byemail(mail)
+    email = request.json.get('email')
+    bcod = db_app_interaction.check_email(email)
     if bcod is None:
       abort(404)
 
-    password = request.args.get('password')
-    user = db_app_interaction.sign_in(mail, password)
-    session['mail'] = mail
-    session['name'] = user['name']
-    session['surname'] = user['surname']
-
-    return Response(status=200)
+    password = request.json.get('password')
+    try:
+        user = db_app_interaction.sign_in(email, password)
+        if user is None:
+            abort(403)
+        session['email'] = email
+        session['first'] = 'n'
+        return Response(status=200)
+    except Exception, e:
+        return Response(status=500)
 
 @app.route('/rest_api/v1.0/already_signin', methods=['GET'])
 @crossdomain(origin='*')
 def al_log_in():
-    if 'mail' in session:
+    if 'email' in session:
         return Response(status=200)
     else:
-        return Response(status=205)
+        return Response(status=404)
 
 @app.route('/rest_api/v1.0/logout', methods=['GET'])
 @crossdomain(origin='*')
 def log_out():
-    del session['mail']
-    del session['name']
-    del session['surname']
+    del session['email']
+    del session['first']
     return Response(status=200)
 
-@app.route('/rest_api/v1.0/lost_password', methods=['GET'])
+@app.route('/rest_api/v1.0/lost_password', methods=['POST'])
 @crossdomain(origin='*')
 def retrieve_pass():
-    mail = request.args.get('mail')
-    bcod = db_app_interaction.code_byemail(mail)
+    email = request.json.get('email')
+    bcod = db_app_interaction.check_email(email)
     if bcod is None:
       abort(404)
 
-    db_app_interaction.lost_password(mail)
+    db_app_interaction.lost_password(email)
     return Response(status=200)
 
 @app.route('/rest_api/v1.0/get_settings', methods=['GET'])
 @crossdomain(origin='*')
 def load_settings():
-    mail = session['mail']
+    email = session['email']
 
-    set_list = db_app_interaction.get_settings(mail)
-    if set_list == -1:
-        return Response(status=205)
+    set_list = db_app_interaction.get_settings(email)
+    if not set_list:
+        session['first'] = 'y'
+        return Response(status=404)
 
     return jsonify({'settings':prepare_for_json(set_list)})
 
@@ -138,128 +188,152 @@ def load_settings():
 def settings():
     setting_req = request.json
 
-    if (setting_req is not None) and ('perimeter' and 'colour' and 'song' and 'doct' and 'message' and 'auto_clean' and 'first') in setting_req:
+    if (setting_req is not None) and ('perimeter' and 'message' and 'doct' and 'colour' and 'song' and 'auto_clean') in setting_req:
 
-      mail = session['mail']
-      perimeter = setting_req['perimeter']
-      colour = setting_req['colour']
-      song = setting_req['song']
-      if song == 'relax':
-          song = os.getcwd()+'/songs/relax.mp3'
-      elif song == 'concentrate':
-          song = os.getcwd() + '/songs/concentrate.mp3'
-      else:
-          song = os.getcwd() + '/songs/remind.mp3'
-      doct = setting_req['doct']
-      message = setting_req['message']
-      auto_clean = setting_req['auto_clean']
-      first = setting_req['first']
+      email = session['email']
+      perimeter = setting_req.get('perimeter')
+      colour = setting_req.get('colour')
+      song = setting_req.get('song')
+      doct = setting_req.get('doct')
+      message = setting_req.get('message')
+      auto_clean = setting_req.get('auto_clean')
+      first = session['first']
 
-      db_app_interaction.set_settings(mail, perimeter, colour, song, doct, message, auto_clean, first)
-      return Response(status=200)
+      try:
+        db_app_interaction.set_settings(email, perimeter, colour, song, doct, message, auto_clean, first)
+        session['first'] = 'n'
+        return Response(status=200)
+      except Exception, e:
+        return Response(status=500)
 
     abort(403)
 
 @app.route('/rest_api/v1.0/get_numbers', methods=['GET'])
 @crossdomain(origin='*')
 def load_numbers():
-    mail = session['mail']
+    email = session['email']
 
-    numbers = db_app_interaction.get_numbers(mail)
-    if numbers == -1:
-        return Response(status=205)
+    numbers = db_app_interaction.get_numbers(email)
+    if not numbers:
+        return Response(status=404)
 
     return jsonify({'numbers':prepare_for_json(numbers)})
 
 @app.route('/rest_api/v1.0/get_history', methods=['GET'])
 @crossdomain(origin='*')
 def load_history():
-    mail = session['mail']
+    email = session['email']
 
     history = []
-    notif = db_app_interaction.get_history(mail)
+    notif = db_app_interaction.get_history(email)
+    if not notif:
+        return Response(status=404)
     for item in notif:
       his = prepare_for_json(item)
       history.append(his)
 
-    if history == -1:
-        return Response(status=205)
-
-    db_app_interaction.history_all_read(mail)
+    db_app_interaction.history_all_read(email)
     return jsonify({'history':history})
 
 @app.route('/rest_api/v1.0/get_calendar', methods=['GET'])
 @crossdomain(origin='*')
 def load_calendar():
-    mail = session['mail']
+    email = session['email']
 
     calendar = []
-    cal = db_app_interaction.get_calendar(mail)
+    cal = db_app_interaction.get_calendar(email)
+    if not cal:
+        return Response(status=404)
+
     for item in cal:
       cl = prepare_for_json(item)
       calendar.append(cl)
 
-    if calendar == -1:
-      return Response(status=205)
-
     return jsonify({'calendar':calendar})
+
+@app.route('/rest_api/v1.0/store_if_code', methods=['POST'])
+@crossdomain(origin='*')
+def store_code():
+    store_request = request.json
+
+    if (store_request is not None) and ('code') in store_request:
+      session['code'] = store_request.get('code')
+      return Response(status=200)
+
+    abort(403)
+
+@app.route('/rest_api/v1.0/get_if_code', methods=['GET'])
+@crossdomain(origin='*')
+def get_if_code():
+    if 'code' in session:
+        code = session['code']
+        del session['code']
+        return jsonify({'code': code})
+
+    return Response(status=404)
 
 @app.route('/rest_api/v1.0/calendar/insert', methods=['POST'])
 @crossdomain(origin='*')
 def insert_appointment():
     req = request.json
 
-    if (req is not None) and ('title' and 'description' and 'data' and 'ora' and 'message' and 'priority' and 'repeat') in req:
+    if (req is not None) and ('title' and 'description' and 'data' and 'ora' and 'message' and 'priority') in req:
 
-      mail = session['mail']
-      titolo = req['title']
-      data = req['data']
-      ora = req['ora']
-      message = req['message']
-      description = req['description']
-      priority = req['priority']
-      repeat = req['repeat']
+      email = session['email']
+      titolo = req.get('title')
+      data = req.get('data')
+      ora = req.get('ora')
+      message = req.get('message')
+      description = req.get('description')
+      priority = req.get('priority')
 
-      db_app_interaction.set_appointment(mail, description, titolo, data, ora, message, priority, repeat)
-      return Response(status=200)
+      try:
+        db_app_interaction.set_appointment(email, description, titolo, data, ora, message, priority)
+        return Response(status=200)
+      except Exception, e:
+          return Response(status=500)
 
     abort(403)
 
-@app.route('/rest_api/v1.0/calendar/<int:code>', methods=['GET'])
+@app.route('/rest_api/v1.0/calendar/<string:code>', methods=['GET'])
 @crossdomain(origin='*')
 def view_appointment(code):
-    mail = session['mail']
+    email = session['email']
 
-    appo = db_app_interaction.select_appointment(mail, int(code))
+    appo = db_app_interaction.select_appointment(email, code)
     appointment = prepare_for_json(appo)
     return jsonify({'appointment':appointment})
 
-@app.route('/rest_api/v1.0/calendar/<int:code>', methods=['DELETE'])
+@app.route('/rest_api/v1.0/calendar/<string:code>', methods=['DELETE'])
 @crossdomain(origin='*')
 def delete_appointment(code):
-    mail = session['mail']
+    email = session['email']
 
-    db_app_interaction.delete_appointment(mail, int(code))
-    return Response(status=200)
+    try:
+        db_app_interaction.delete_appointment(email, code)
+        return Response(status=200)
+    except Exception, e:
+        return Response(status=500)
 
-@app.route('/rest_api/v1.0/calendar/<int:code>', methods=['PUT'])
+@app.route('/rest_api/v1.0/calendar/<string:code>', methods=['PUT'])
 @crossdomain(origin='*')
 def update_appointment(code):
-    mail = session['mail']
+    email = session['email']
     update_req = request.json
 
-    if update_req is not None and ('code' and 'title' and 'description' and 'data' and 'ora' and 'message' and 'priority' and 'repeat') in update_req:
-      code = update_req['code']
-      titolo = update_req['title']
-      data = update_req['data']
-      ora = update_req['ora']
-      message = update_req['message']
-      description = update_req['description']
-      priority = update_req['priority']
-      repeat = update_req['repeat']
+    if update_req is not None and ('title' and 'description' and 'data' and 'ora' and 'message' and 'priority') in update_req:
+      titolo = update_req.get('title')
+      data = update_req.get('data')
+      ora = update_req.get('ora')
+      message = update_req.get('message')
+      description = update_req.get('description')
+      priority = update_req.get('priority')
 
-      db_app_interaction.update_appo(mail, int(code), titolo, description, data, ora, message, priority, repeat)
-      return Response(status=200)
+      try:
+        db_app_interaction.update_appo(email, code, titolo, description, data, ora, message, priority)
+        return Response(status=200)
+      except Exception, e:
+        return Response(status=500)
 
     abort(403)
 
@@ -280,11 +354,11 @@ def prepare_for_json(item):
       tot['ora'] = item[2]
       tot['message'] = item[3]
     if len(item)==5:
-      tot['done'] = item[0]
-      tot['titolo'] = item[1]
-      tot['data'] = item[2]
-      tot['ora'] = item[3]
-      tot['code'] = item[4]
+      tot['code'] = item[0]
+      tot['title'] = item[1]
+      tot['done'] = item[2]
+      tot['data'] = item[3]
+      tot['ora'] = item[4]
     if len(item)==6:
       tot['perimeter'] = item[0]
       tot['colour'] = item[1]
@@ -299,11 +373,30 @@ def prepare_for_json(item):
       tot['ora'] = item[3]
       tot['message'] = item[4]
       tot['priority'] = item[5]
-      tot['repeat'] = item[6]
 
     return tot
 
 #------ APIs END ------#
+
+#--- send notification email ---#
+def send_email(email, message):
+    sender = 'info@emergencyquest.com'
+    receivers = [email]
+
+    content = """From: From EmergencyQuest Team <info@emergencyquest.com>
+    Subject: New notification
+
+    You have a new unread notification in your history! This is the message: '""" + message + """'
+    Hope it is not an extreme condition.
+
+    Best regards"""
+
+    try:
+        smtpObj = smtplib.SMTP('smtp.googlemail.com')
+        smtpObj.sendemail(sender, receivers, content)
+        print "Successfully sent email"
+    except:
+        print "Error: unable to send email"
 
 if __name__ == '__main__':
     app.run(debug=True)

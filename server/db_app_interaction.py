@@ -5,8 +5,47 @@ Created on May 30, 3016
 @author: gmonna
 """
 
-import sqlite3, smtplib, os
+import sqlite3, smtplib, os, base64, hashlib
 DATABASE = os.getcwd()+'/db/database.db'
+
+def get_device_token(email):
+    """
+    Get token of user's device to send him a push notification
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT deviceid, anorapp FROM DEVICE WHERE email=?"
+    cursor.execute(sql, (email,))
+    token = cursor.fetchone()
+
+    device = dict()
+    device['deviceid'] = token[0]
+    device['anorapp'] = token[1]
+
+    conn.close()
+    return device
+
+def insert_token(email, deviceid, anorapp):
+    """
+    Insert user's device token to send him push notifications
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "INSERT INTO DEVICE(email, deviceid, anorapp) VALUES(?, ?, ?)"
+    try:
+        cursor.execute(sql, (email, deviceid, anorapp))
+        conn.commit()
+    except Exception, e:
+        print str(e)
+        conn.rollback()
+
+    conn.close()
 
 def get_code(bcod):
     """
@@ -24,22 +63,37 @@ def get_code(bcod):
     conn.close()
     return bcod
 
-def code_byemail(mail):
+def check_presence(email, bcod):
     """
-    Check if mail is connected to any bcode
+    Check if email or bcod are present into the database
     """
     conn = sqlite3.connect(DATABASE)
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT bcod FROM USERS WHERE mail=?"
-    cursor.execute(sql, (mail, ))
+    sql = "SELECT bcod FROM USERS WHERE email=? OR bcod=?"
+    cursor.execute(sql, (email, bcod))
     bcod = cursor.fetchone()
 
     conn.close()
     return bcod
 
-def sign_in(mail, password):
+def check_email(email):
+    """
+    Check if email is present for log in
+    """
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT bcod FROM USERS WHERE email=?"
+    cursor.execute(sql, (email, ))
+    bcod = cursor.fetchone()
+
+    conn.close()
+    return bcod
+
+def sign_in(email, password):
     """
     Log in to the system
     """
@@ -48,25 +102,26 @@ def sign_in(mail, password):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT name, surname FROM USERS WHERE mail=? AND password=?"
+    sql = "SELECT name, surname FROM USERS WHERE email=? AND password=?"
 
-    cursor.execute(sql, (mail, password))
+    cursor.execute(sql, (email, password))
     user = cursor.fetchone()
 
     conn.close()
     return user
 
-def sign_up(bcod, mail, password, name, surname):
+def sign_up(bcod, email, password, name, surname, deviceid, anorapp):
     """
     Sign up to the system
     """
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    sql = "INSERT INTO USERS(bcod, mail, password, name, surname) VALUES (?, ?, ?, ?, ?)"
+    sql = "INSERT INTO USERS(bcod, email, password, name, surname) VALUES (?, ?, ?, ?, ?)"
 
     try:
-        cursor.execute(sql, (bcod, mail, password, name, surname))
+        cursor.execute(sql, (bcod, email, password, name, surname))
+        insert_token(email, deviceid, anorapp)
         conn.commit()
     except Exception, e:
         print str(e)
@@ -74,7 +129,7 @@ def sign_up(bcod, mail, password, name, surname):
 
     conn.close()
 
-def lost_password(mail):
+def lost_password(email):
     """
     Send password to user
     """
@@ -83,13 +138,13 @@ def lost_password(mail):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT password FROM USERS WHERE mail=?"
+    sql = "SELECT password FROM USERS WHERE email=?"
 
-    cursor.execute(sql, (mail, ))
+    cursor.execute(sql, (email, ))
     password = cursor.fetchone()
 
     sender = 'info@emergencyquest.com'
-    receivers = [mail]
+    receivers = [email]
 
     message = """From: From EmergencyQuest Team <info@emergencyquest.com>
     Subject: Lost password
@@ -100,15 +155,15 @@ def lost_password(mail):
     Best regards"""
 
     try:
-        smtpObj = smtplib.SMTP('localhost')
-        smtpObj.sendmail(sender, receivers, message)
+        smtpObj = smtplib.SMTP('smtp.googlemail.com')
+        smtpObj.sendemail(sender, receivers, message)
         print "Successfully sent email"
     except:
         print "Error: unable to send email"
 
     conn.close()
 
-def get_settings(mail):
+def get_settings(email):
     """
     Get current settings for the user
     """
@@ -117,31 +172,29 @@ def get_settings(mail):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT perimeter, colour, song, doct, message, auto_clean FROM PREFERENCES WHERE mail=?"
+    sql = "SELECT perimeter, colour, song, doct, message, auto_clean FROM PREFERENCES WHERE email=?"
 
-    cursor.execute(sql, (mail, ))
+    cursor.execute(sql, (email, ))
     settings = cursor.fetchone()
 
     conn.close()
-    if settings is None:
-        return -1
     return settings
 
-def set_settings(mail, perimeter, colour, song, doct, message, auto_clean, first):
+def set_settings(email, perimeter, colour, song, doct, message, auto_clean, first):
     """
     Set preferences distinguishing between new user and already registered user
     """
 
-    if (first=="y"):
-        sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, mail) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    if (first=='y'):
+        sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, email) VALUES (?, ?, ?, ?, ?, ?, ?)"
     else:
-        sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=? WHERE mail=?"
+        sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=? WHERE email=?"
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
     try:
-        cursor.execute(sql, (perimeter, colour, song, doct, message, auto_clean, mail))
+        cursor.execute(sql, (perimeter, colour, song, doct, message, auto_clean, email))
         conn.commit()
     except Exception, e:
         print str(e)
@@ -149,7 +202,7 @@ def set_settings(mail, perimeter, colour, song, doct, message, auto_clean, first
 
     conn.close()
 
-def get_history(mail):
+def get_history(email):
     """
     Get patient's history of notifications
     """
@@ -159,27 +212,26 @@ def get_history(mail):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT read, data, ora, message FROM HISTORY WHERE mail=?"
+    sql = "SELECT read, data, ora, message FROM HISTORY WHERE email=? ORDER BY read ASC, data DESC, ora DESC"
 
-    cursor.execute(sql, (mail, ))
+    cursor.execute(sql, (email, ))
     history = cursor.fetchall()
 
-    if history is None:
-        return -1
     return history
 
-def insert_notification(mail, data, ora, message):
+def insert_notification(email, data, ora, message):
     """
     Add a notification to history
     """
+    code = base64.urlsafe_b64encode(hashlib.md5(email + data + ora + message).digest())
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     read = "n"
-    sql = "INSERT INTO HISTORY(mail, read, data, ora, message) VALUES (?, ?, ?, ?, ?)"
+    sql = "INSERT INTO HISTORY(email, code, read, data, ora, message) VALUES (?, ?, ?, ?, ?, ?)"
 
     try:
-        cursor.execute(sql, (mail, read, data, ora, message))
+        cursor.execute(sql, (email, code, read, data, ora, message))
         conn.commit()
     except Exception, e:
         print str(e)
@@ -187,17 +239,17 @@ def insert_notification(mail, data, ora, message):
 
     conn.close()
 
-def history_all_read(mail):
+def history_all_read(email):
     """
     Set all notifications as read after opening history page
     """
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
-    sql = "UPDATE HISTORY SET read='y' WHERE mail=?"
+    sql = "UPDATE HISTORY SET read='y' WHERE email=?"
 
     try:
-      cursor.execute(sql, (mail, ))
+      cursor.execute(sql, (email, ))
       conn.commit()
     except Exception, e:
       print str(e)
@@ -205,7 +257,7 @@ def history_all_read(mail):
 
     conn.close()
 
-def delete_history_doneappo(mail):
+def delete_history_doneappo():
     """
     Delete patient's history and done appointments from database every *x* time
     """
@@ -213,20 +265,19 @@ def delete_history_doneappo(mail):
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
-    sql = "DELETE FROM HISTORY WHERE mail=?"
-    sql2 = "DELETE FROM CALENDAR WHERE mail=? AND done='y'"
+    sql = "DELETE FROM HISTORY WHERE read='y' AND email IN (SELECT email FROM PREFERENCES WHERE auto_clean='y')"
+    sql2 = "DELETE FROM CALENDAR WHERE done='y' AND email IN (SELECT email FROM PREFERENCES WHERE auto_clean='y')"
 
     try:
-        cursor.execute(sql, (mail, ))
-        cursor.execute(sql2, (mail, ))
+        cursor.execute(sql)
+        cursor.execute(sql2)
         conn.commit()
     except Exception, e:
-        err = str(e)
         conn.rollback()
 
     conn.close()
 
-def get_calendar(mail):
+def get_calendar(email):
     """
     Get patient's appointments
     """
@@ -236,17 +287,15 @@ def get_calendar(mail):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT code, title, done, data, ora FROM CALENDAR WHERE mail=?"
+    sql = "SELECT code, title, done, data, ora FROM CALENDAR WHERE email=? ORDER BY data ASC, ora ASC, done ASC"
 
-    cursor.execute(sql, (mail, ))
+    cursor.execute(sql, (email, ))
     calendar = cursor.fetchall()
 
     conn.close()
-    if calendar is None:
-        return -1
     return calendar
 
-def get_numbers(mail):
+def get_numbers(email):
     """
     Get patient's appointments
     """
@@ -256,13 +305,13 @@ def get_numbers(mail):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql1 = "SELECT COUNT(*) FROM CALENDAR WHERE mail=? AND done='n'"
-    cursor.execute(sql1, (mail, ))
+    sql1 = "SELECT COUNT(*) FROM CALENDAR WHERE email=? AND done='n'"
+    cursor.execute(sql1, (email, ))
     numb1 = cursor.fetchone()
     numbers.append(numb1)
 
-    sql2 = "SELECT COUNT(*) FROM HISTORY WHERE mail=? AND read='n'"
-    cursor.execute(sql2, (mail,))
+    sql2 = "SELECT COUNT(*) FROM HISTORY WHERE email=? AND read='n'"
+    cursor.execute(sql2, (email,))
     numb2 = cursor.fetchone()
     numbers.append(numb2)
 
@@ -272,7 +321,7 @@ def get_numbers(mail):
 
     return numbers
 
-def select_appointment(mail, code):
+def select_appointment(email, code):
     """
     Get patient's specific appointment
     """
@@ -282,26 +331,28 @@ def select_appointment(mail, code):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT title, description, data, ora, message, priority, repeat FROM CALENDAR WHERE mail=? AND code=?"
+    sql = "SELECT title, description, data, ora, message, priority, code FROM CALENDAR WHERE email=? AND code=?"
 
-    cursor.execute(sql, (mail, code ))
+    cursor.execute(sql, (email, code ))
     calendar = cursor.fetchone()
 
     conn.close()
     return calendar
 
-def set_appointment(mail, description, title, data, ora, message, priority, repeat):
+def set_appointment(email, description, title, data, ora, message, priority):
     """
     Add an appointment to the calendar
     """
+
+    code = base64.urlsafe_b64encode(hashlib.md5(email+title+description).digest())
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     done = "n"
-    sql = "INSERT INTO CALENDAR(mail, description, title, done, data, ora, message, priority, repeat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    sql = "INSERT INTO CALENDAR(email, description, code, title, done, data, ora, message, priority) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
     try:
-        cursor.execute(sql, (mail, description, title, done, data, ora, message, priority, repeat))
+        cursor.execute(sql, (email, description, code, title, done, data, ora, message, priority))
         conn.commit()
     except Exception, e:
         print str(e)
@@ -309,17 +360,17 @@ def set_appointment(mail, description, title, data, ora, message, priority, repe
 
     conn.close()
 
-def delete_appointment(mail, code):
+def delete_appointment(email, code):
     """
     Add an appointment to the calendar
     """
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    sql = "DELETE FROM CALENDAR WHERE mail=? AND code=?"
+    sql = "DELETE FROM CALENDAR WHERE email=? AND code=?"
 
     try:
-        cursor.execute(sql, (mail, code))
+        cursor.execute(sql, (email, code))
         conn.commit()
     except Exception, e:
         print str(e)
@@ -327,17 +378,17 @@ def delete_appointment(mail, code):
 
     conn.close()
 
-def update_appo(mail, code, title, description, data, ora, message, priority, repeat):
+def update_appo(email, code, title, description, data, ora, message, priority):
     """
     Update an appointment into the calendar
     """
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    sql = "UPDATE CALENDAR SET title=? AND description=? AND data=? AND ora=? AND message=? AND priority=? AND repeat=? WHERE mail=? AND code=?"
+    sql = "UPDATE CALENDAR SET title=?, description=?, data=?, ora=?, message=?, priority=? WHERE email=? AND code=?"
 
     try:
-        cursor.execute(sql, (title, description, data, ora, message, priority, repeat, mail, code))
+        cursor.execute(sql, (title, description, data, ora, message, priority, email, code))
         conn.commit()
     except Exception, e:
         print str(e)
