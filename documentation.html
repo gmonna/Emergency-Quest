@@ -393,12 +393,18 @@
                                 <li>Priority 1</li>
                             </ul>
                         </li><br>
-                        <li><strong>FR SERVER.4</strong>: Automatic cleaning
+                        <li><strong>FR SERVER.3</strong>: Provide APIs
                             <ul style="list-style-type: circle;">
-                                <li>The main server cleans automatically every pa.</li>
-                                <li>Priority 3</li>
+                                <li>The main server must provide a set of functions (APIs) that mobile applications can call to interact with the system.</li>
+                                <li>Priority 1</li>
                             </ul>
                         </li><br>
+                        <li><strong>FR SERVER.4</strong>: Automatic cleaning
+                            <ul style="list-style-type: circle;">
+                                <li>The main server cleans automatically every patient's history and done appointments for whom "auto_clean" is set to yes in preferences.</li>
+                                <li>Priority 2</li>
+                            </ul>
+                        </li>
                     </ul>
                 </p>
             </div>
@@ -509,8 +515,9 @@
                 <h4 class="service-heading" style="text-align: center;">1.1 - Hardware Architecture</h4>
                 <p class="text-muted">
                     <ul>
-                        <li><strong>ROOM</strong>: the whole set of sensors and actuators of the house.
+                        <li><strong>ROOM</strong>: the whole set of sensors and actuators of the house connected to a board.
                             <ul style="list-style-type: circle;">
+                                <li>Single board computer connected to the Internet via Wi-Fi</li>
                                 <li>Motion sensor</li>
                                 <li>Bracelet: heart rate and respiration sensor</li>
                                 <li>Patient's smartphone to track his position</li>
@@ -518,7 +525,7 @@
                                 <li>Controllable lights</li>
                             </ul>
                         </li><br>
-                        <li><strong>SERVER</strong>: a computer connected to the Internet via LAN.</li><br>
+                        <li><strong>SERVER</strong>: computer connected to the Internet via LAN.</li><br>
                         <li><strong>USER'S SMARTPHONE</strong>: device used to access to the system front-end from the mobile application.</li><br>
                     </ul>
                 </p>
@@ -554,15 +561,15 @@
                             <ul style="list-style-type: circle;">
                                 <li>store previous user data in the database</li>
                                 <li>send notifications in particular situations to the app</li>
-                                <li>receive and set-up appointments</li>
-                                <li>process data coming from the room and reason about what to do</li>
-                                <li>process patient's position by his smartphone and provide a map within the mobile app</li>
+                                <li>receive and store appointments</li>
+                                <li>process notifications coming from the room</li>
+                                <li>provide a map within the mobile app with specific patient's position</li>
                             </ul>
                         </li><br>
-                        <li><strong>Runs on</strong>: a single-board computer placed in the house</li><br>
+                        <li><strong>Runs on</strong>: a computer connected to the Internet via LAN</li><br>
                         <li><strong>Interacts</strong>:
                             <ul style="list-style-type: circle;">
-                                <li>with the room by sensors APIs</li>
+                                <li>with the room by APIs</li>
                                 <li>with app by HTTP</li>
                                 <li>with Google Maps by Google Maps APIs</li>
                             </ul>
@@ -570,17 +577,17 @@
                     </ul>
                 </p>
                 <p class="text-muted">
-                    <strong>ROOM</strong> (sensors + actuators)
+                    <strong>ROOM</strong> (station, sensors and actuators)
                     <ul>
                         <li><strong>Functions</strong>:
                             <ul style="list-style-type: circle;">
-                                <li>send sensed data to the server</li>
-                                <li>receive instructions from server</li>
-                                <li>change the environment</li>
+                                <li>process sensed data</li>
+                                <li>process GPS patient's position and give it to the main server</li>
+                                <li>change the environment by controlling actuators</li>
                             </ul>
                         </li><br>
-                        <li><strong>Runs on</strong>: house sensors and actuators</li><br>
-                        <li><strong>Interacts</strong>: with server by HTTP</li>
+                        <li><strong>Runs on</strong>: house sensors - a single board computer to control the whole set</li><br>
+                        <li><strong>Interacts</strong>: with main server by HTTP</li>
                     </ul>
                 </p>
             </div>
@@ -590,15 +597,17 @@
                 <h5 class="service-heading">2.1.1 - Off-the-Shelf</h5>
                 <p class="text-muted">
                     <ul>
-                        <li><strong>Server</strong>: Raspberry Pi + Wi-Fi module</li><br>
+                        <li><strong>Server</strong>: A powerful computer that can manage requests from all users</li><br>
                         <li><strong>Room</strong>:
                             <ul style="list-style-type: circle;">
+                                <li>Raspberry Pi + Wi-Fi module (for controlling station)</li>
                                 <li>Active speakers (for playing messages and music)</li>
                                 <li>RaZberry (for Z-Wave motion sensing)</li>
                                 <li>2 Hue bulbs (controllable lights)</li>
                                 <li>FitBit (for agitation detection)</li>
                             </ul>
                         </li>
+                        <li><strong>App</strong>: Users' smartphones, natively</li><br>
                     </ul>
                 </p>
             </div>
@@ -624,6 +633,8 @@
                         </li><br>
                         <li><strong>Room</strong>:
                             <ul style="list-style-type: circle;">
+                                <li>Flask v0.10.1</li>
+                                <li>SQLite3 (for database)</li>
                                 <li>Z-Wave API</li>
                                 <li>Hue bulb API</li>
                                 <li>FitBit API</li>
