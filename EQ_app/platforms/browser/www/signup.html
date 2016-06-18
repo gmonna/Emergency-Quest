@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Sign Up</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Access-Control-Allow-Origin" content="*">
+  
+  <link rel="stylesheet" type="text/css" href="css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="css/framework.css">
+  <link rel="stylesheet" type="text/css" href="css/washington.css">
+  <script src="js/webfont.js"></script>
+  <script>
+    WebFont.load({
+      google: {
+        families: ["Montserrat:400,700"]
+      }
+    });
+  </script>
+  <script type="text/javascript" src="js/modernizr.js"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="images/logoStandford32.ico">
+  <link rel="apple-touch-icon" href="images/logoStandford32.ico">
+
+  <link href="css/ionicons.min.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <section class="w-section mobile-wrapper">
+
+    <div class="page-content" id="main-stack" data-scroll="0">
+      <div class="w-nav navbar" data-collapse="all" data-animation="over-left" data-duration="400" data-contain="1" data-easing="ease-out-quint" data-no-scroll="1">
+        <div class="w-container">
+          <div class="wrapper-mask" data-ix="menu-mask"></div>
+          <div class="navbar-title">Sign Up</div>
+          <a class="w-inline-block navbar-button" href="login.html" data-load="1">
+            <div class="navbar-button-icon icon ion-ios-close-empty"></div>
+          </a>
+        </div>
+      </div>
+      <div class="body padding">
+        <div class="logo-login smaller"></div>
+        <div class="bottom-section padding">
+          <div class="w-form">
+            <form id="signup-form" name="email-form" data-name="Email Form" action="/signup">
+              <div>
+                <label class="label-form" for="name-field">NAME</label>
+                <input class="w-input input-form" id="name-field" type="text" name="name" data-name="name" required="required">
+                <div class="separator-fields"></div>
+              </div>
+              <div>
+                <label class="label-form" for="surname-field">SURNAME</label>
+                <input class="w-input input-form" id="surname-field" type="text" name="surname" data-name="surname" required="required">
+                <div class="separator-fields"></div>
+              </div>
+              <div>
+                <label class="label-form" for="email-field">E-MAIL</label>
+                <input class="w-input input-form" id="email-field" type="email" name="mail" data-name="mail" required="required">
+                <div class="separator-fields"></div>
+              </div>
+              <div>
+                <label class="label-form" for="password-field">PASSWORD</label>
+                <input class="w-input input-form" id="password-field" type="password" name="password" data-name="password" required="required">
+                <div class="separator-fields"></div>
+              </div>
+              <div>
+                <label class="label-form" for="password2-field">REPEAT PASSWORD</label>
+                <input class="w-input input-form" id="password2-field" type="password" name="password2" data-name="password2" required="required">
+                <div class="separator-fields"></div>
+              </div>
+              <div>
+                <label class="label-form" for="bracelet-code">BRACELET CODE</label>
+                <input class="w-input input-form" id="bracelet-code" type="text" name="bcod" data-name="bcod" required="required">
+              </div>
+              <div class="separator-button-input"></div>
+              <input type="hidden" name="first" value="y">
+              <input class="w-button action-button" type="submit" value="Sign Up" data-wait="Please wait...">
+              <div class="separator-button"></div><a class="link-upper" href="login.html" data-load="1">ALREADY HAVE AN ACCOUNT? <strong class="b-link">SIGN IN</strong></a>
+            </form>
+            <div class="w-form-done">
+              <p>Thank you! Your submission has been received!</p>
+            </div>
+            <div class="w-form-fail">
+              <p>Oops! Something went wrong while submitting the form</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-content loading-mask" id="new-stack">
+      <div class="loading-icon">
+        <div class="navbar-button-icon icon ion-load-d"></div>
+      </div>
+    </div>
+    <div class="shadow-layer"></div>
+  </section>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/framework.js"></script>
+  <script type="text/javascript" src="js/signup.js"></script>
+  <!--[if lte IE 9]><script src="js/placeholders.min.js"></script><![endif]-->
+</body>
+</html>
