@@ -6,7 +6,6 @@ Created on May 30, 2016
 """
 
 from flask import Flask, jsonify, abort, session, Response, make_response, request, current_app
-from flask_bootstrap import Bootstrap
 from datetime import timedelta
 from functools import update_wrapper
 from gcm import *
@@ -15,27 +14,12 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import db_app_interaction, time, smtplib
 
 app = Flask(__name__)
-Bootstrap(app)
 gcm = GCM("AIzaSyBLfB5vNmQ2LbiEtxNNKwiid4GaB66Onkg")
 apns = APNs(use_sandbox=True, cert_file='cers/aps_prod_cert.pem', key_file='cers/aps_prod_key.pem', enhanced=True)
 
 app.secret_key = 'F12Zr47jyXRX@H!jmM]Lwf?KT'
 
-#---send push notifications to app, call this function to do it---#
-
-def send_push(email, message):
-    db_app_interaction.insert_notification(email, time.strftime("%Y-%m-%d"), time.strftime("%H:%M"), message)
-    send_email(email, message)
-    device = db_app_interaction.get_device_token(email)
-    if device['anorapp']=='ios':
-        payload = Payload(alert=message, sound="default", badge=1)
-        apns.gateway_server.send_notification(device['deviceid'], payload)
-    else:
-        data = {'message': message}
-        reg_id = device['deviceid']
-        gcm.plaintext_request(registration_id=reg_id, data=data)
-
-#---cron jobs to ask sensors and do auto_cleaning every day---#
+#---cron job to do auto_cleaning every day---#
 
 @app.before_first_request
 def initialize():
@@ -102,7 +86,7 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_t
 def new_user():
     insert_request = request.json
 
-    if (insert_request is not None) and ('name' and 'surname' and 'email' and 'password' and 'bcod' and 'deviceid' and 'anorapp') in insert_request:
+    if (insert_request is not None) and ('name' and 'surname' and 'email' and 'password' and 'bcod') in insert_request:
       bcod = insert_request.get('bcod')
       bc = db_app_interaction.get_code(bcod)
       if bc is None:
@@ -115,11 +99,9 @@ def new_user():
       password = insert_request.get('password')
       name = insert_request.get('name')
       surname = insert_request.get('surname')
-      deviceid = insert_request.get('deviceid')
-      anorapp = insert_request.get('anorapp')
 
       try:
-        db_app_interaction.sign_up(bcod, email, password, name, surname, deviceid, anorapp)
+        db_app_interaction.sign_up(bcod, email, password, name, surname)
         return Response(status=200)
       except Exception, e:
         return Response(status=500)
@@ -141,6 +123,12 @@ def log_in():
             abort(403)
         session['email'] = email
         session['first'] = 'n'
+        deviceid = request.json.get('deviceid')
+        anorapp = request.json.get('anorapp')
+        try:
+            db_app_interaction.insert_token(email, deviceid, anorapp)
+        except Exception, e:
+            print e
         return Response(status=200)
     except Exception, e:
         return Response(status=500)
@@ -183,12 +171,23 @@ def load_settings():
 
     return jsonify({'settings':prepare_for_json(set_list)})
 
+@app.route('/rest_api/v1.0/get_user_settings/<string:bcode>', methods=['GET'])
+@crossdomain(origin='*')
+def load_user_settings(bcode):
+    email = db_app_interaction.get_email(bcode)
+
+    set_list = db_app_interaction.get_settings(email)
+    if not set_list:
+        return Response(status=404)
+
+    return jsonify({'settings':prepare_for_json(set_list)})
+
 @app.route('/rest_api/v1.0/set_settings', methods=['POST'])
 @crossdomain(origin='*')
 def settings():
     setting_req = request.json
 
-    if (setting_req is not None) and ('perimeter' and 'message' and 'doct' and 'colour' and 'song' and 'auto_clean') in setting_req:
+    if (setting_req is not None) and ('perimeter' and 'message' and 'doct' and 'colour' and 'song' and 'auto_clean' and 'doc_access') in setting_req:
 
       email = session['email']
       perimeter = setting_req.get('perimeter')
@@ -197,15 +196,17 @@ def settings():
       doct = setting_req.get('doct')
       message = setting_req.get('message')
       auto_clean = setting_req.get('auto_clean')
+      doc_access = setting_req.get('doc_access')
       first = session['first']
 
       try:
-        db_app_interaction.set_settings(email, perimeter, colour, song, doct, message, auto_clean, first)
+        db_app_interaction.set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_access, first)
         session['first'] = 'n'
         return Response(status=200)
       except Exception, e:
         return Response(status=500)
 
+    print setting_req
     abort(403)
 
 @app.route('/rest_api/v1.0/get_numbers', methods=['GET'])
@@ -235,6 +236,23 @@ def load_history():
     db_app_interaction.history_all_read(email)
     return jsonify({'history':history})
 
+@app.route('/rest_api/v1.0/new_notification/<string:bcod>&<string:message>', methods=['POST'])
+def send_push(bcod, message):
+    email = db_app_interaction.get_email(bcod)
+    db_app_interaction.insert_notification(email, time.strftime("%Y-%m-%d"), time.strftime("%H:%M"), message)
+    send_email(email, message)
+    if db_app_interaction.grant_docaccess:
+        send_email(db_app_interaction.get_docemail(bcod), message)
+    devices = db_app_interaction.get_devices_token(email)
+    for device in devices:
+        if device[1]=='ios':
+            payload = Payload(alert=message, sound="default", badge=1)
+            apns.gateway_server.send_notification(device[0], payload)
+        else:
+            data = {'message': message}
+            reg_id = device[0]
+            gcm.plaintext_request(registration_id=reg_id, data=data)
+
 @app.route('/rest_api/v1.0/get_calendar', methods=['GET'])
 @crossdomain(origin='*')
 def load_calendar():
@@ -250,6 +268,38 @@ def load_calendar():
       calendar.append(cl)
 
     return jsonify({'calendar':calendar})
+
+@app.route('/rest_api/v1.0/get_day_calendar/<string:date>&<string:bcod>', methods=['GET'])
+@crossdomain(origin='*')
+def load_day_calendar(bcod, date):
+
+    daily = []
+    email = db_app_interaction.get_email(bcod)
+    day = db_app_interaction.get_day_calendar(email, date)
+    if not day:
+        return Response(status=404)
+
+    for item in day:
+      d = prepare_for_json(item)
+      daily.append(d)
+
+    return jsonify({'daily_cal':daily})
+
+@app.route('/rest_api/v1.0/set_appointment_done/<string:code>&<string:bcod>', methods=['PUT'])
+@crossdomain(origin='*')
+def set_appointment_done(code, bcod):
+    update_req = request.json
+    email = db_app_interaction.get_email(bcod)
+
+    if update_req is not None:
+
+      try:
+        db_app_interaction.set_appointment_done(email, code)
+        return Response(status=200)
+      except Exception, e:
+        return Response(status=500)
+
+    abort(403)
 
 @app.route('/rest_api/v1.0/store_if_code', methods=['POST'])
 @crossdomain(origin='*')
@@ -338,9 +388,24 @@ def update_appointment(code):
     abort(403)
 
 @app.route('/rest_api/v1.0/get_position', methods=['GET'])
-@crossdomain(origin='*') #--TODO--#
+@crossdomain(origin='*')
 def get_position():
-    return jsonify({'position':{'latitude':'45.0853512', 'longitude':'7.6709614'}})
+    position = db_app_interaction.get_position(session['email'])
+    if not position:
+        abort(404)
+
+    return jsonify({'position':{'latitude':position['latitude'], 'longitude':position['longitude']}})
+
+@app.route('/rest_api/v1.0/set_position/<string:bcod>&<string:latitude>&<string:longitude>', methods=['POST'])
+@crossdomain(origin='*')
+def set_position(bcod, latitude, longitude):
+    email = db_app_interaction.get_email(bcod)
+    try:
+        db_app_interaction.set_position(email, latitude, longitude)
+        return Response(status=200)
+    except Exception, e:
+        print email + e
+        return Response(status=500)
 
 def prepare_for_json(item):
     tot = dict()
@@ -348,6 +413,10 @@ def prepare_for_json(item):
     if len(item)==2:
       tot['calendar'] = item[0]
       tot['history'] = item[1]
+    if len(item)==3:
+        tot['code'] = item[0]
+        tot['message'] = item[1]
+        tot['ora'] = item[2]
     if len(item)==4:
       tot['read'] = item[0]
       tot['data'] = item[1]
@@ -360,19 +429,21 @@ def prepare_for_json(item):
       tot['data'] = item[3]
       tot['ora'] = item[4]
     if len(item)==6:
-      tot['perimeter'] = item[0]
-      tot['colour'] = item[1]
-      tot['song'] = item[2]
-      tot['doct'] = item[3]
-      tot['message'] = item[4]
-      tot['auto_clean'] = item[5]
-    if len(item)==7:
       tot['title'] = item[0]
       tot['description'] = item[1]
       tot['data'] = item[2]
       tot['ora'] = item[3]
       tot['message'] = item[4]
       tot['priority'] = item[5]
+    if len(item)==7:
+      tot['perimeter'] = item[0]
+      tot['colour'] = item[1]
+      tot['song'] = item[2]
+      tot['doct'] = item[3]
+      tot['message'] = item[4]
+      tot['auto_clean'] = item[5]
+      tot['doc_access'] = item[6]
+
 
     return tot
 
@@ -386,7 +457,7 @@ def send_email(email, message):
     content = """From: From EmergencyQuest Team <info@emergencyquest.com>
     Subject: New notification
 
-    You have a new unread notification in your history! This is the message: '""" + message + """'
+    You have a new unread notification in your patient history! This is the message: '""" + message + """'
     Hope it is not an extreme condition.
 
     Best regards"""

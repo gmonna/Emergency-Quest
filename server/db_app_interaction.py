@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
 """
-Created on May 30, 3016
+Created on May 30, 2016
 @author: gmonna
 """
 
 import sqlite3, smtplib, os, base64, hashlib
 DATABASE = os.getcwd()+'/db/database.db'
 
-def get_device_token(email):
+def get_device_tokens(email):
     """
-    Get token of user's device to send him a push notification
+    Get token of user's devices to send him a push notification
     """
 
     conn = sqlite3.connect(DATABASE)
@@ -19,14 +19,10 @@ def get_device_token(email):
 
     sql = "SELECT deviceid, anorapp FROM DEVICE WHERE email=?"
     cursor.execute(sql, (email,))
-    token = cursor.fetchone()
-
-    device = dict()
-    device['deviceid'] = token[0]
-    device['anorapp'] = token[1]
+    devices = cursor.fetchall()
 
     conn.close()
-    return device
+    return devices
 
 def insert_token(email, deviceid, anorapp):
     """
@@ -37,13 +33,17 @@ def insert_token(email, deviceid, anorapp):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "INSERT INTO DEVICE(email, deviceid, anorapp) VALUES(?, ?, ?)"
-    try:
-        cursor.execute(sql, (email, deviceid, anorapp))
-        conn.commit()
-    except Exception, e:
-        print str(e)
-        conn.rollback()
+    req = "SELECT deviceid FROM DEVICE WHERE email=?"
+    cursor.execute(req, (email, ))
+    devices = cursor.fetchall()
+    if(deviceid not in devices):
+        sql = "INSERT INTO DEVICE(email, deviceid, anorapp) VALUES(?, ?, ?)"
+        try:
+            cursor.execute(sql, (email, deviceid, anorapp))
+            conn.commit()
+        except Exception, e:
+            print str(e)
+            conn.rollback()
 
     conn.close()
 
@@ -93,6 +93,38 @@ def check_email(email):
     conn.close()
     return bcod
 
+def get_email(bcod):
+    """
+    Get email connected to B_CODE
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT email FROM USERS WHERE bcod=?"
+    cursor.execute(sql, (bcod, ))
+    email = cursor.fetchone()
+
+    conn.close()
+    return email
+
+def get_docemail(bcod):
+    """
+    Get docemail connected to B_CODE
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT doct FROM USERS, PREFERENCES WHERE USERS.EMAIL = PREFERENCES.EMAIL AND bcod=?"
+    cursor.execute(sql, (bcod, ))
+    email = cursor.fetchone()
+
+    conn.close()
+    return email
+
 def sign_in(email, password):
     """
     Log in to the system
@@ -110,7 +142,7 @@ def sign_in(email, password):
     conn.close()
     return user
 
-def sign_up(bcod, email, password, name, surname, deviceid, anorapp):
+def sign_up(bcod, email, password, name, surname):
     """
     Sign up to the system
     """
@@ -121,7 +153,6 @@ def sign_up(bcod, email, password, name, surname, deviceid, anorapp):
 
     try:
         cursor.execute(sql, (bcod, email, password, name, surname))
-        insert_token(email, deviceid, anorapp)
         conn.commit()
     except Exception, e:
         print str(e)
@@ -172,7 +203,7 @@ def get_settings(email):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT perimeter, colour, song, doct, message, auto_clean FROM PREFERENCES WHERE email=?"
+    sql = "SELECT perimeter, colour, song, doct, message, auto_clean, doc_access FROM PREFERENCES WHERE email=?"
 
     cursor.execute(sql, (email, ))
     settings = cursor.fetchone()
@@ -180,21 +211,42 @@ def get_settings(email):
     conn.close()
     return settings
 
-def set_settings(email, perimeter, colour, song, doct, message, auto_clean, first):
+def grant_docaccess(email):
+    """
+    Get doctor access setting for the user
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT doc_access FROM PREFERENCES WHERE email=?"
+
+    cursor.execute(sql, (email,))
+    docaccess = cursor.fetchone()
+
+    conn.close()
+
+    if docaccess[0]=='y':
+        return True
+    else:
+        return False
+
+def set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_access, first):
     """
     Set preferences distinguishing between new user and already registered user
     """
 
     if (first=='y'):
-        sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, email) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, doc_access, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     else:
-        sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=? WHERE email=?"
+        sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=?, doc_access=? WHERE email=?"
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
     try:
-        cursor.execute(sql, (perimeter, colour, song, doct, message, auto_clean, email))
+        cursor.execute(sql, (perimeter, colour, song, doct, message, auto_clean, doc_access, email))
         conn.commit()
     except Exception, e:
         print str(e)
@@ -295,6 +347,44 @@ def get_calendar(email):
     conn.close()
     return calendar
 
+def get_day_calendar(email, date):
+    """
+    Get patient's appointments of the day
+    """
+    calendar = []
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT code, message, ora FROM CALENDAR WHERE email=? AND data=? ORDER BY ora ASC"
+
+    cursor.execute(sql, (email, date))
+    calendar = cursor.fetchall()
+
+    conn.close()
+    return calendar
+
+def set_appointment_done(email, code):
+    """
+    Set this appointment to done=y
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "UPDATE CALENDAR SET done='y' WHERE email=? AND code=?"
+
+    try:
+        cursor.execute(sql, (email, code))
+        conn.commit()
+    except Exception, e:
+        print str(e)
+        conn.rollback()
+
+    conn.close()
+
 def get_numbers(email):
     """
     Get patient's appointments
@@ -331,7 +421,7 @@ def select_appointment(email, code):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT title, description, data, ora, message, priority, code FROM CALENDAR WHERE email=? AND code=?"
+    sql = "SELECT title, description, data, ora, message, priority FROM CALENDAR WHERE email=? AND code=?"
 
     cursor.execute(sql, (email, code ))
     calendar = cursor.fetchone()
@@ -395,3 +485,42 @@ def update_appo(email, code, title, description, data, ora, message, priority):
         conn.rollback()
 
     conn.close()
+
+def set_position(email, lat, long):
+    """
+    Add new position to database
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    sql = "INSERT INTO POSITION(email, latitude, longitude) VALUES (?, ?, ?)"
+
+    try:
+        cursor.execute(sql, (email, lat, long))
+        conn.commit()
+    except Exception, e:
+        print str(e)
+        conn.rollback()
+
+    conn.close()
+
+def get_position(email):
+    """
+    Get patient's last position registered
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT latitude, longitude FROM POSITION WHERE email=?"
+
+    cursor.execute(sql, (email, ))
+    position = cursor.fetchone()
+
+    pos = dict()
+    pos['latitude'] = position[0]
+    pos['longitude'] = position[1]
+
+    conn.close()
+    return pos
