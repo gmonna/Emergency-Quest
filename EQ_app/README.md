@@ -2,4 +2,4 @@ This is the mobile application written in HTML5, CSS3 and JavaScript/jQuery, tha
 
 With Adobe PhoneGap tool, a webapp like that can be translated in a native app for almost every mobile OS (we created only .ipa for iOS and .apk for Android).
 
-All application content is located in the www folder, while config.xml and plugins and hook folders are requested by PhoneGap to create bundle.
+All application content is located in the www folder, while config.xml and plugins, hook and platforms folders are requested by PhoneGap to create bundle.
