@@ -6,7 +6,7 @@ Created on May 30, 3016
 """
 
 import sqlite3, smtplib, os, base64, hashlib
-DATABASE = os.getcwd()+'/../db/database.db'
+DATABASE = os.getcwd()+'/db/database.db'
 
 def get_device_token(email):
     """
