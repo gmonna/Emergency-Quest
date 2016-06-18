@@ -67,3 +67,18 @@ def import_calendar(calendar):
         conn.rollback()
 
     conn.close()
+
+def get_appointments():
+    """
+    Get all daily appointments
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT code, message, ora FROM CALENDAR;"
+    appos = cursor.execute(sql)
+
+    conn.close()
+    return appos;
