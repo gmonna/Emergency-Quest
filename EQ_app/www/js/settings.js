@@ -15,7 +15,7 @@ function get_settings() {
             dataType: "json",
             success: function (data, status) {
                 var settings = data.settings;
-				var colour = ""; var song = "";
+				var colour = ""; var song = ""; var auto_clean = ""; var doc_access = "";
 				switch (settings.colour) {
 				case "blue":
 					colour = 3;
@@ -38,12 +38,36 @@ function get_settings() {
 					song = 1;
 					break;
 				}
+				
+				switch (settings.auto_clean) {
+				case "y":
+					auto_clean = 2;
+					break;
+				case "n":
+					auto_clean = 1;
+					break; 	
+				}
+				
+				switch (settings.doc_access) {
+				case "y":
+					doc_access = 1;
+					break;
+				case "n":
+					doc_access = 0;
+					break; 	
+				}
+				
                	document.getElementById("radius-field").value = settings.perimeter;
+				$("#colourdiv-"+song).addClass("checked");
+				$("#musicdiv-"+song).addClass("checked");
 				document.getElementById("colour-"+colour).checked = true;
 				document.getElementById("song-"+song).checked = true;
 				document.getElementById("mess-field").value = settings.message;
                	document.getElementById("doc-field").value = settings.doct;
+				$("#autocleandiv-"+auto_clean).addClass("checked");
+				$("#docaccessdiv-"+doc_access).addClass("checked");
 				document.getElementById("auto_clean-"+settings.auto_clean).checked = true;
+				document.getElementById("doc_access-"+settings.doc_access).checked = true;
 			},
 			error: function(xhr, errorThrown) {
 				alert('No settings.');	
@@ -59,8 +83,9 @@ function set_settings(event) {
     var colour = $("input[name='colour']:checked").val();
 	var song = $("input[name='song']:checked").val();
 	var auto = $("input[name='auto_clean']:checked").val();
+	var doc = $("input[name='doc_access']:checked").val();
 
-    var json = {perimeter: perimeter, message: message, doct: doct, colour: colour, song: song, auto_clean: auto};
+    var json = {perimeter: perimeter, message: message, doct: doct, colour: colour, song: song, auto_clean: auto, doc_access:doc};
 
     	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/set_settings",
         	{

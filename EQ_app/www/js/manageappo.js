@@ -27,7 +27,7 @@ function get_appointment(code) {
 				document.getElementById("data-field").value = appointment.data;
 				document.getElementById("ora-field").value = appointment.ora;
                 document.getElementById("message-field").value = appointment.message;
-				document.getElementById("node-"+appointment.priority).checked = true;
+				$("#prioritydiv-"+appointment.priority).addClass("checked");
 			},
 			error: function(xhr, textStatus, errorThrown) {
        			alert('Unknown error, charging this appointment was impossible.');
