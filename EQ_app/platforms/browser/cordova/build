@@ -1,5 +1,6 @@
-<?xml version='1.0' encoding='utf-8'?>
-<!--
+#!/usr/bin/env node
+
+/*
        Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
        distributed with this work for additional information
@@ -16,7 +17,18 @@
        KIND, either express or implied.  See the License for the
        specific language governing permissions and limitations
        under the License.
--->
-<widget id="io.cordova.hellocordova" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+*/
 
-</widget>
+
+var build = require('./lib/build'),
+    args  = process.argv;
+
+// provide help
+if ( args[2] == '--help' || args[2] == '/?' || args[2] == '-h' || args[2] == '/h' ||
+                    args[2] == 'help' || args[2] == '-help' || args[2] == '/help') {
+    build.help();
+    process.exit(0);
+} else {
+
+    build.run();
+}
