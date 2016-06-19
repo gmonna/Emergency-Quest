@@ -52,7 +52,7 @@ def initialize():
             song = os.getcwd() + '/songs/concentrate.mp3'
         message = settings['settings']['message']
 
-    @sched.scheduled_job('interval', hour=24)
+    @sched.scheduled_job('cron', hour=0)
     def get_today_calendar():
         db_room_interaction.delete_calendar()
         url = "http://127.0.0.1:5000/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%m-%d")+"&"+bcod
@@ -61,7 +61,7 @@ def initialize():
         db_room_interaction.import_calendar(calendar['daily_cal'])
 
     @sched.scheduled_job('cron', day_of_week='mon')
-    def auto_clean():
+    def example():
         print "Wake up it's monday"
 
     sched.start()
