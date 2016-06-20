@@ -192,7 +192,6 @@ class AlytHub:
         payload = { 'prot_type' : 2, 'id' : ID, 'capability' : state_json}
 
         response = requests.post(url, data=payload, headers={ 'Cookie' : cookie_json })
-        print response
 
 
     def set_Huecolor_rgb(self, sensor, red, green, blue):
@@ -229,16 +228,12 @@ class AlytHub:
         action_ID = 0
 
         tag_description = json.loads(json.dumps({'TAG_ENG_DESC' : 'Set RGB color', 'TAG_DEF_DESC' : 'Set RGB color', 'TAG_FRA_DESC' : 'Définissez la couleur RGB', 'TAG_ITA_DESC' : 'Impostare il colore RGB'}))
-        capability = {'TAG_TYPE' : 'Complex', 'TAG_DESCRIPTION' : tag_description, 'TAG_CAPABILITY_NAME' : 'set_color_rgb', 'TAG_INFO' : 'set the values of red, green and blue. Accepted range: 0­255', 'TAG_COLOR' : '255-0-0', 'TAG_ACTION_ID' : action_ID, 'TAG_I/O' : 'Output'}
+        capability = {'TAG_TYPE' : 'Complex', 'TAG_CHOSEN_VALUES' : [red, green, blue], 'TAG_DESCRIPTION' : tag_description, 'TAG_CAPABILITY_NAME' : 'set_color_rgb', 'TAG_INFO' : 'set the values of red, green and blue. Accepted range: 0­255', 'TAG_COLOR' : '255-0-0', 'TAG_ACTION_ID' : action_ID, 'TAG_I/O' : 'Output'}
         color_json = json.dumps(capability)
 
         payload = { 'prot_type' : 2, 'id' : ID, 'capability' : color_json}
 
         response = requests.post(url, data=payload, headers={ 'Cookie' : cookie_json })
-        print response
-        #answer = response.json()
-        #self.print_json(answer)
-
 
 
     # PROTOCOL TYPE: '1' -> ZWAVE
