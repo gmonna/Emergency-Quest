@@ -12,8 +12,6 @@ def main():
     message_2 = vlc.MediaPlayer('mp3 file to play to remember to do when Motion Detector 2 is active, presents in database')
     music = vlc.MediaPlayer('mp3 file to relax, presents in database')
 
-    #Alyt.turn_on_off_HueBulb("HueBulb 1", "off")
-    #Alyt.set_Huecolor_rgb("HueBulb 1", 255, 0, 0)
 
     Alyt.turn_on_off_HueBulb("HueBulb 1", "on")
     Alyt.set_Huecolor_rgb("HueBulb 1", 100, 150, 150)
@@ -49,20 +47,16 @@ def main():
 
             Alyt.turn_on_off_HueBulb("HueBulb 1", "on")
             Alyt.set_Huecolor_rgb("HueBulb 1", 0, 100, 250)
+            music.play()
 
             # STORE TIME WHEN OCCURED AGITATION IN THE PATIENT IN THE DATABASE
-
-            while (Fitbit.get_HR() > 100):
-
-                music.play()
+    
+            while (Fitbit.get_HR() > 100)
 
             music.stop()
             Alyt.set_Huecolor_rgb("HueBulb 1", list_RGB_colors[0], list_RGB_colors[1], list_RGB_colors[2])
 
 
-
-    #prova = Alyt.get_list()
-    #Alyt.print_json(prova)
 
 if __name__ == '__main__':
     main()
