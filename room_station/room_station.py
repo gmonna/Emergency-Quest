@@ -1,10 +1,10 @@
 from flask import Flask, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
 from alyt_api import AlytHub
-import time, db_room_interaction, requests, os, vlc
+import time, db_room_interaction, requests, os, vlc, fitbit_api
 
 app = Flask(__name__)
-bcod = 0 #--in first bracelet connection to the system we store code here--#
+bcod = "" #--it is the user-id for fitbit bracelet--#
 perimeter = 0
 colour = None
 song = None
@@ -15,7 +15,7 @@ Alyt = AlytHub("http://192.168.1.103")
 #---create motion message to play---#
 def motion():
     ms = 'You went too far, keep calm and step back, your family will be home soon.'
-    wget_line = 'wget -q -U Mozilla -O motion.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms_motion + '&client=tw-ob"'
+    wget_line = 'wget -q -U Mozilla -O motion.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms + '&client=tw-ob"'
     os.system(wget_line)
     ms = os.getcwd() + '/motion.mp3'
     ms_motion = vlc.MediaPlayer(ms)
@@ -82,7 +82,8 @@ def initialize():
 
     @sched.scheduled_job('interval', minutes=5)
     def control_agitation():
-        if(True): #---here fitbit check---#
+        h_rate = fitbit_api.get_agitation(bcod)
+        if h_rate is not None:
             message.play()
             Alyt.turn_on_off_HueBulb("HueBulb 1", "on")
             if (colour=="blue"):
@@ -100,10 +101,19 @@ def initialize():
             Alyt.set_Huecolor_rgb("HueBulb 1", r, g, b)
             song.play()
             Alyt.turn_on_off_HueBulb("HueBulb 1", "off")
+        new_notification(
+            "System was unable to get patient's heart rate, maybe he took off the bracelet.")
 
     @sched.scheduled_job('interval', minutes=5)
     def get_position():
-        print "todo"
+        position = fitbit_api.get_position(bcod)
+        if position is not None:
+            url = "http://127.0.0.1:5000/rest_api/v1.0/set_position/" + bcod + "&" + position['latitude'] + "&" + \
+                  position['longitude']
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+            requests.post(url, headers=headers)
+        new_notification(
+            "System was unable to get patient's position, maybe he took off the bracelet.")
 
     @sched.scheduled_job('interval', hour=1)
     def refresh_settings():
