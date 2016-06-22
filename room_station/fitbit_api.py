@@ -1,4 +1,5 @@
-import requests, json, base64, urllib, urllib2, sys, json, os
+import requests, json, base64, urllib, urllib2, sys, json, os, datetime
+
 
 """
 A module representing a Fitbit bracelet
@@ -193,7 +194,10 @@ def get_position(user_id):
 def get_agitation(user_id):
     AccessToken = ""
     RefreshToken = ""
-    FitbitURL = "https://api.fitbit.com/1/user/-/profile.json"
+    now = datetime.datetime.now()
+    five_mins_ago = now - datetime.timedelta(minutes=5)
+    FitbitURL = "https://api.fitbit.com/1/user/"+user_id+"/activities/heart/date/today/1d/1min/time/"\
+                +five_mins_ago.seconds // 3600+":"+(five_mins_ago.seconds // 60)+"/"+now.seconds // 3600+":"+(now.seconds // 60)+".json"
 
     # Get the config
     AccessToken, RefreshToken = GetConfig()
@@ -202,7 +206,10 @@ def get_agitation(user_id):
     APICallOK, APIResponse = MakeAPICall(FitbitURL, AccessToken, RefreshToken)
 
     if APICallOK:
-        return APIResponse
+        values = []
+        for item in APIResponse['activities-heart-intraday']['dataset']:
+            values.append(item['value'])
+        return max(values)
     else:
         if (APIResponse == TokenRefreshedOK):
             print "Refreshed the access token.  Can go again"
