@@ -25,10 +25,6 @@ app.secret_key = 'F12Zr47jyXRX@H!jmM]Lwf?KT'
 def initialize():
     sched = BackgroundScheduler()
 
-    @sched.scheduled_job('interval', minutes=10)
-    def timed_job():
-        print('Use this type of function to call APIs for motion sensors.')
-
     @sched.scheduled_job('cron', day_of_week='mon')
     def auto_clean():
         try:
@@ -117,6 +113,9 @@ def log_in():
       abort(404)
 
     password = request.json.get('password')
+    patient = request.json.get('patient')
+    session['patient'] = patient
+
     try:
         user = db_app_interaction.sign_in(email, password)
         if user is None:
@@ -146,6 +145,7 @@ def al_log_in():
 def log_out():
     del session['email']
     del session['first']
+    del session['patient']
     return Response(status=200)
 
 @app.route('/rest_api/v1.0/lost_password', methods=['POST'])
@@ -187,7 +187,7 @@ def load_user_settings(bcode):
 def settings():
     setting_req = request.json
 
-    if (setting_req is not None) and ('perimeter' and 'message' and 'doct' and 'colour' and 'song' and 'auto_clean' and 'doc_access') in setting_req:
+    if (setting_req is not None) and ('perimeter' and 'message' and 'doct' and 'colour' and 'song' and 'auto_clean' and 'doc_access' and 'address') in setting_req:
 
       email = session['email']
       perimeter = setting_req.get('perimeter')
@@ -197,10 +197,11 @@ def settings():
       message = setting_req.get('message')
       auto_clean = setting_req.get('auto_clean')
       doc_access = setting_req.get('doc_access')
+      address = setting_req.get('address')
       first = session['first']
 
       try:
-        db_app_interaction.set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_access, first)
+        db_app_interaction.set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_access, address, first)
         session['first'] = 'n'
         return Response(status=200)
       except Exception, e:
@@ -396,16 +397,27 @@ def get_position():
 
     return jsonify({'position':{'latitude':position['latitude'], 'longitude':position['longitude']}})
 
-@app.route('/rest_api/v1.0/set_position/<string:bcod>&<string:latitude>&<string:longitude>', methods=['POST'])
+@app.route('/rest_api/v1.0/get_last_position/<string:bcod>', methods=['GET'])
 @crossdomain(origin='*')
-def set_position(bcod, latitude, longitude):
+def get_last_position(bcod):
     email = db_app_interaction.get_email(bcod)
-    try:
-        db_app_interaction.set_position(email, latitude, longitude)
-        return Response(status=200)
-    except Exception, e:
-        print email + e
-        return Response(status=500)
+    position = db_app_interaction.get_position(email)
+    if not position:
+        abort(404)
+
+    return jsonify({'position':{'latitude':position['latitude'], 'longitude':position['longitude']}})
+
+@app.route('/rest_api/v1.0/set_position/', methods=['POST'])
+@crossdomain(origin='*')
+def set_position():
+    pos_request = request.json
+
+    if (pos_request is not None) and ('latitude' and 'longitude') in pos_request and 'patient' in session:
+        try:
+            db_app_interaction.set_position(session['email'], pos_request['latitude'], pos_request['longitude'])
+            return Response(status=200)
+        except Exception, e:
+            return Response(status=500)
 
 def prepare_for_json(item):
     tot = dict()
@@ -435,7 +447,7 @@ def prepare_for_json(item):
       tot['ora'] = item[3]
       tot['message'] = item[4]
       tot['priority'] = item[5]
-    if len(item)==7:
+    if len(item)==8:
       tot['perimeter'] = item[0]
       tot['colour'] = item[1]
       tot['song'] = item[2]
@@ -443,6 +455,7 @@ def prepare_for_json(item):
       tot['message'] = item[4]
       tot['auto_clean'] = item[5]
       tot['doc_access'] = item[6]
+      tot['address'] = item[7]
 
 
     return tot
@@ -470,4 +483,4 @@ def send_email(email, message):
         print "Error: unable to send email"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='192.168.1.102', debug=True, port=8080)

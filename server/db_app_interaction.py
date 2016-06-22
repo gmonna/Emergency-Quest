@@ -232,21 +232,21 @@ def grant_docaccess(email):
     else:
         return False
 
-def set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_access, first):
+def set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_access, address, first):
     """
     Set preferences distinguishing between new user and already registered user
     """
 
     if (first=='y'):
-        sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, doc_access, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, doc_access, address, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     else:
-        sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=?, doc_access=? WHERE email=?"
+        sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=?, doc_access=?, address=? WHERE email=?"
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
     try:
-        cursor.execute(sql, (perimeter, colour, song, doct, message, auto_clean, doc_access, email))
+        cursor.execute(sql, (perimeter, colour, song, doct, message, auto_clean, doc_access, address, email))
         conn.commit()
     except Exception, e:
         print str(e)
