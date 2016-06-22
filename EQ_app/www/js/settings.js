@@ -9,7 +9,7 @@ $(document).ready(function () {
 
 function get_settings() {
     $.ajax(
-        'http://127.0.0.1:5000/rest_api/v1.0/get_settings',
+        'http://192.168.1.102:8080/rest_api/v1.0/get_settings',
         {
             method: "GET",
             dataType: "json",
@@ -57,6 +57,7 @@ function get_settings() {
 					break; 	
 				}
 				
+				document.getElementById("address-field").value = settings.address;
                	document.getElementById("radius-field").value = settings.perimeter;
 				$("#colourdiv-"+song).addClass("checked");
 				$("#musicdiv-"+song).addClass("checked");
@@ -77,6 +78,7 @@ function get_settings() {
 }
 
 function set_settings(event) {
+	var address = $("input[name='address']").val();
 	var perimeter = $("input[name='radius']").val();
 	var message = $("input[name='message']").val();
     var doct = $("input[name='doctor']").val();
@@ -85,9 +87,9 @@ function set_settings(event) {
 	var auto = $("input[name='auto_clean']:checked").val();
 	var doc = $("input[name='doc_access']:checked").val();
 
-    var json = {perimeter: perimeter, message: message, doct: doct, colour: colour, song: song, auto_clean: auto, doc_access:doc};
+    var json = {address:address, perimeter: perimeter, message: message, doct: doct, colour: colour, song: song, auto_clean: auto, doc_access:doc};
 
-    	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/set_settings",
+    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/set_settings",
         	{
             	method: 'POST',
             	contentType: 'application/json',

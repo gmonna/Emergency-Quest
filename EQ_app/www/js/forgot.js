@@ -10,7 +10,7 @@ function forgot(event) {
     var email = $("input[name='email']").val();
 
     var json = {email: email};
-        $.ajax("http://127.0.0.1:5000/rest_api/v1.0/lost_password",
+        $.ajax("http://192.168.1.102:8080/rest_api/v1.0/lost_password",
             {
                 method: 'POST',
 

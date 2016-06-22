@@ -6,7 +6,7 @@ $(document).ready(function () {
 
 function get_calendar() {
     $.ajax(
-        'http://127.0.0.1:5000/rest_api/v1.0/get_calendar',
+        'http://192.168.1.102:8080/rest_api/v1.0/get_calendar',
         {
             method: "GET",
             dataType: "json",
@@ -51,7 +51,7 @@ function get_calendar() {
 
 function show_appointment(code) {
 	var json = {code: code};
-	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/store_if_code",
+	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/store_if_code",
         {
            	method: 'POST',
            	contentType: 'application/json',
@@ -72,7 +72,7 @@ function store_code(code) {
 function delete_appointment(code) {
 	var r = confirm("Are you sure you want to delete this appointment?");
 	if (r==true) {
-    	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/calendar/"+code,
+    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/calendar/"+code,
         	{
            		method: 'DELETE',
             	success: function (status) {

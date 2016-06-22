@@ -16,7 +16,7 @@ $(document).ready(function () {
 
 function get_appointment(code) {
     $.ajax(
-        'http://127.0.0.1:5000/rest_api/v1.0/calendar/'+code,
+        'http://192.168.1.102:8080/rest_api/v1.0/calendar/'+code,
         {
             method: "GET",
             dataType: "json",
@@ -38,7 +38,7 @@ function get_appointment(code) {
 
 function get_if_code() {
 	$.ajax(
-        'http://127.0.0.1:5000/rest_api/v1.0/get_if_code',
+        'http://192.168.1.102:8080/rest_api/v1.0/get_if_code',
         {
             method: "GET",
             dataType: "json",
@@ -63,7 +63,7 @@ function update_appointment(event, code) {
 
     var json = {code: code, title: title, description: description, data: date, ora: hour, message: message, priority: priority};
 
-    	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/calendar/"+code,
+    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/calendar/"+code,
         	{
             	method: 'PUT',
             	contentType: 'application/json',
@@ -90,7 +90,7 @@ function set_appointment(event) {
 
     var json = {title: title, description: description, data: date, ora: hour, message: message, priority: priority};
 
-    	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/calendar/insert",
+    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/calendar/insert",
         	{
             	method: 'POST',
             	contentType: 'application/json',

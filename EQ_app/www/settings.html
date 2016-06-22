@@ -92,9 +92,14 @@
         <div class="logo-login smaller"></div>
         <div class="w-form">
           <form id="settings-form" name="email-form" data-name="Email Form" action="#">
+          	<div>
+              <label class="label-form" for="address-field">HOUSE ADDRESS</label>
+              <input class="w-input input-form" id="address-field" type="text" name="address" data-name="address" required="required">
+              <div class="separator-fields"></div>
+            </div>
             <div>
               <label class="label-form" for="radius-field">MAP RADIUS</label>
-              <input class="w-input input-form" id="radius-field" type="number" min="1" max="25" name="radius" data-name="radius" required="required">
+              <input class="w-input input-form" id="radius-field" type="number" min="25" max="200" name="radius" data-name="radius" required="required">
               <div class="separator-fields"></div>
             </div>
             <div>
@@ -215,7 +220,7 @@
   <!-- <script type="text/javascript" src="js/common_record.js"></script>
   <script src="js/jquery-1.11.0.min.js"></script>
   <script src="js/recordmp3.js"></script> -->
-  <script type="text/javascript" src="js/numbers.js"></script>
+  <script type="text/javascript" src="js/whole_site.js"></script>
   <!--[if lte IE 9]><script src="js/placeholders.min.js"></script><![endif]-->
 </body>
 </html>
