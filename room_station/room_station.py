@@ -18,7 +18,9 @@ alyt = AlytHub("192.168.1.103")
 def coordinates(address):
     url = "https://maps.google.com/maps/api/geocode/json?address="+address+"&sensor=false"
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    coor = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers)
+    coor = json.loads(response.text)
+    print coor
     latitude = coor['results']['geometry']['location']['lat']
     longitude = coor['results']['geometry']['location']['lng']
 
@@ -55,7 +57,9 @@ def new_notification(message):
 def settings():
     url = "http://192.168.1.102:8080/rest_api/v1.0/get_user_settings/" + bcod
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    sttings = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers)
+    sttings = json.loads(response.text)
+    print sttings
     if(os.path.isfile(os.getcwd()+'/message.mp3')):
         os.remove(os.getcwd() + '/message.mp3')
     perimeter = sttings['settings']['perimeter']
@@ -102,7 +106,7 @@ def initialize():
 
     @sched.scheduled_job('interval', minutes=1)
     def check_motion():
-        if (alyt.get_motion_state("Motion Sensor 1")==1 or alyt.get_motion_state("Motion sensor 2")==1):
+        if (alyt.get_motion_state("Motion Sensor 1") == 1 or alyt.get_motion_state("Motion sensor 2") == 1):
             ms_motion.play()
             time.sleep(5)
             new_notification(
@@ -112,21 +116,22 @@ def initialize():
     def get_position():
         url = "http://192.168.1.102:8080/rest_api/v1.0/get_last_position/" + bcod
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-        position = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers)
+        position = json.loads(response.text)
         if (getDistanceFromLatLonInM(position['latitude'], position['longitude'], latitude, longitude)>perimeter):
             new_notification(
                 "System detected an exit from the perimeter of the patient, we suggest you to return home.")
 
     @sched.scheduled_job('interval', minutes=5)
     def get_agitation():
-        if(fitbit_api.get_agitation(bcod)>100):
+        if (fitbit_api.get_agitation(bcod) > 100):
             message.play()
             alyt.turn_on_off_HueBulb("Hue Bulb 1", "on")
-            if (colour=='blue'):
+            if (colour == 'blue'):
                 r = 22
                 g = 14
                 b = 170
-            elif (colour=='red'):
+            elif (colour == 'red'):
                 r = 173
                 g = 0
                 b = 9
