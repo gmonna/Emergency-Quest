@@ -219,7 +219,7 @@ def load_numbers():
     if not numbers:
         return Response(status=404)
 
-    return jsonify({'numbers':prepare_for_json(numbers)})
+    return jsonify({'numbers':prepare_for_json(numbers), 'patient':session['patient']})
 
 @app.route('/rest_api/v1.0/get_history', methods=['GET'])
 @crossdomain(origin='*')
@@ -412,7 +412,7 @@ def get_last_position(bcod):
 def set_position():
     pos_request = request.json
 
-    if (pos_request is not None) and ('latitude' and 'longitude') in pos_request and 'patient' in session:
+    if (pos_request is not None) and ('latitude' and 'longitude') in pos_request and 'patient' in session and session['patient']=='y':
         try:
             db_app_interaction.set_position(session['email'], pos_request['latitude'], pos_request['longitude'])
             return Response(status=200)
