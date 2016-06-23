@@ -12,6 +12,7 @@ colour = None
 song = None
 message = None
 ms_motion = None
+alyt = AlytHub("192.168.1.103")
 
 #---convert address to its latitude and longitude---#
 def coordinates(address):
@@ -83,7 +84,6 @@ def initialize():
     settings()
     motion()
 
-
     @sched.scheduled_job('interval', minutes=1)
     def check_appointment():
         appointments = db_room_interaction.get_appointments()
@@ -100,6 +100,13 @@ def initialize():
                 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                 requests.post(url, headers=headers)
 
+    @sched.scheduled_job('interval', minutes=1)
+    def check_motion():
+        if (alyt.get_motion_state("Motion Sensor 1")==1 or alyt.get_motion_state("Motion sensor 2")==1):
+            ms_motion.play()
+            time.sleep(5)
+            new_notification(
+                "System detected a dangerous situation by motion sensors, now it's helping the patient avoid it.")
 
     @sched.scheduled_job('interval', minutes=5)
     def get_position():
@@ -109,6 +116,30 @@ def initialize():
         if (getDistanceFromLatLonInM(position['latitude'], position['longitude'], latitude, longitude)>perimeter):
             new_notification(
                 "System detected an exit from the perimeter of the patient, we suggest you to return home.")
+
+    @sched.scheduled_job('interval', minutes=5)
+    def get_agitation():
+        if(fitbit_api.get_agitation(bcod)>100):
+            message.play()
+            alyt.turn_on_off_HueBulb("Hue Bulb 1", "on")
+            if (colour=='blue'):
+                r = 22
+                g = 14
+                b = 170
+            elif (colour=='red'):
+                r = 173
+                g = 0
+                b = 9
+            else:
+                r = 180
+                g = 173
+                b = 32
+            alyt.set_Huecolor_rgb("Hue Bulb 1", r, g, b)
+            song.play()
+            time.sleep(10)
+            alyt.turn_on_off_HueBulb("Hue Bulb 1", "off")
+            new_notification(
+                "System detected a condition of agitation on the patient during last five minutes, now it's trying to calm him down.")
 
     @sched.scheduled_job('interval', hour=1)
     def refresh_settings():
