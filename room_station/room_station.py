@@ -4,7 +4,7 @@ from alyt_api import AlytHub
 import time, db_room_interaction, requests, os, vlc, fitbit_api, math, json
 
 app = Flask(__name__)
-bcod = "" #--it is the user-id for fitbit bracelet--#
+bcod = "k5kr" #--it is the user-id for fitbit bracelet--#
 perimeter = 0
 latitude = None
 longitude = None
@@ -12,7 +12,6 @@ colour = None
 song = None
 message = None
 ms_motion = None
-Alyt = AlytHub("http://192.168.1.103")
 
 #---convert address to its latitude and longitude---#
 def coordinates(address):
@@ -53,7 +52,7 @@ def new_notification(message):
 
 #---function to get settings---#
 def settings():
-    url = "http://192.168.1.102:8080/rest_api/v1.0/get_settings/" + bcod
+    url = "http://192.168.1.102:8080/rest_api/v1.0/get_user_settings/" + bcod
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     sttings = requests.get(url, headers=headers)
     if(os.path.isfile(os.getcwd()+'/message.mp3')):
@@ -84,12 +83,6 @@ def initialize():
     settings()
     motion()
 
-    @sched.scheduled_job('interval', seconds=10)
-    def get_motion():
-        if (Alyt.get_motion_state("Motion Detector 1") == 1 or Alyt.get_motion_state("Motion Detector 2") == 1):
-            ms_motion.play()
-            time.sleep(5)
-            new_notification("The system detected a strange behavior of patient, he went too close to a dangerous situation and motion sensors turned on.")
 
     @sched.scheduled_job('interval', minutes=1)
     def check_appointment():
@@ -107,32 +100,6 @@ def initialize():
                 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                 requests.post(url, headers=headers)
 
-    @sched.scheduled_job('interval', minutes=5)
-    def control_agitation():
-        h_rate = fitbit_api.get_agitation(bcod)
-        if h_rate is not None:
-            if h_rate>100:
-                message.play()
-                Alyt.turn_on_off_HueBulb("HueBulb 1", "on")
-                if (colour == "blue"):
-                    r = 15
-                    g = 0
-                    b = 222
-                elif (colour == "red"):
-                    r = 226
-                    g = 60
-                    b = 0
-                else:
-                    r = 226
-                    g = 211
-                    b = 0
-                Alyt.set_Huecolor_rgb("HueBulb 1", r, g, b)
-                song.play()
-                Alyt.turn_on_off_HueBulb("HueBulb 1", "off")
-                new_notification(
-                    "During last five minutes the patient get too nervous. The system is now trying to relax him. Keep calm.")
-        new_notification(
-            "System was unable to get patient's heart rate, maybe he took off the bracelet.")
 
     @sched.scheduled_job('interval', minutes=5)
     def get_position():
