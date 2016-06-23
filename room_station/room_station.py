@@ -1,7 +1,7 @@
 from flask import Flask
 from apscheduler.schedulers.background import BackgroundScheduler
 from alyt_api import AlytHub
-import time, db_room_interaction, requests, os, vlc, fitbit_api, math, json
+import time, db_room_interaction, requests, os, vlc, fitbit_api, math, json, logging
 
 app = Flask(__name__)
 bcod = "k5kr" #--it is the user-id for fitbit bracelet--#
@@ -12,6 +12,7 @@ colour = None
 song = None
 message = None
 ms_motion = None
+cal = 'noappos'
 alyt = AlytHub("192.168.1.103")
 
 #---convert address to its latitude and longitude---#
@@ -20,9 +21,8 @@ def coordinates(address):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     response = requests.get(url, headers=headers)
     coor = json.loads(response.text)
-    print coor
-    latitude = coor['results']['geometry']['location']['lat']
-    longitude = coor['results']['geometry']['location']['lng']
+    latitude = coor['results'][0]['geometry']['location']['lat']
+    longitude = coor['results'][0]['geometry']['location']['lng']
 
 #---get perimeter distance---#
 def deg2rad(deg):
@@ -59,7 +59,8 @@ def settings():
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     response = requests.get(url, headers=headers)
     sttings = json.loads(response.text)
-    print sttings
+    if not sttings:
+        return
     if(os.path.isfile(os.getcwd()+'/message.mp3')):
         os.remove(os.getcwd() + '/message.mp3')
     perimeter = sttings['settings']['perimeter']
@@ -84,27 +85,29 @@ def settings():
 
 @app.before_first_request
 def initialize():
+    logging.basicConfig()
     sched = BackgroundScheduler()
     settings()
     motion()
 
     @sched.scheduled_job('interval', minutes=1)
     def check_appointment():
-        appointments = db_room_interaction.get_appointments()
-        for appo in appointments:
-            if appo[2] == time.strftime("%02H:%02M"):
-                wget_line = 'wget -q -U Mozilla -O reminder.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + appo[1] + '&client=tw-ob"'
-                os.system(wget_line)
-                reminder = vlc.MediaPlayer(os.getcwd()+'/reminder.mp3')
-                reminder.play()
-                time.sleep(5)
-                os.remove('reminder.mp3')
-                db_room_interaction.set_done(appo[0])
-                url = "http://192.168.1.102:8080/rest_api/v1.0/set_appointment_done/"+appo[0]+"&"+bcod
-                headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-                requests.post(url, headers=headers)
+        if (cal!='noappos'):
+            appointments = db_room_interaction.get_appointments()
+            for appo in appointments:
+                if appo[2] == time.strftime("%02H:%02M"):
+                    wget_line = 'wget -q -U Mozilla -O reminder.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + appo[1] + '&client=tw-ob"'
+                    os.system(wget_line)
+                    reminder = vlc.MediaPlayer(os.getcwd()+'/reminder.mp3')
+                    reminder.play()
+                    time.sleep(5)
+                    os.remove('reminder.mp3')
+                    db_room_interaction.set_done(appo[0])
+                    url = "http://192.168.1.102:8080/rest_api/v1.0/set_appointment_done/"+appo[0]+"&"+bcod
+                    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+                    requests.post(url, headers=headers)
 
-    @sched.scheduled_job('interval', minutes=1)
+    @sched.scheduled_job('interval', seconds=30)
     def check_motion():
         if (alyt.get_motion_state("Motion Sensor 1") == 1 or alyt.get_motion_state("Motion sensor 2") == 1):
             ms_motion.play()
@@ -118,6 +121,8 @@ def initialize():
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers)
         position = json.loads(response.text)
+        if not position:
+            return
         if (getDistanceFromLatLonInM(position['latitude'], position['longitude'], latitude, longitude)>perimeter):
             new_notification(
                 "System detected an exit from the perimeter of the patient, we suggest you to return home.")
@@ -146,17 +151,22 @@ def initialize():
             new_notification(
                 "System detected a condition of agitation on the patient during last five minutes, now it's trying to calm him down.")
 
-    @sched.scheduled_job('interval', hour=1)
+    @sched.scheduled_job('interval', minutes=60)
     def refresh_settings():
         settings()
 
-    @sched.scheduled_job('cron', hour=0)
+    @sched.scheduled_job('cron', day_of_week='mon-sun')
     def get_today_calendar():
         db_room_interaction.delete_calendar()
         url = "http://192.168.1.102:8080/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%m-%d")+"&"+bcod
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-        calendar = requests.get(url, headers=headers)
-        db_room_interaction.import_calendar(calendar['daily_cal'])
+        response = requests.get(url, headers=headers)
+        if(response.text is not None):
+            cal = 'todayappos'
+            calendar = json.loads(response.text)
+            db_room_interaction.import_calendar(calendar['daily_cal'])
+        else:
+            cal = 'noappos'
 
     sched.start()
 
