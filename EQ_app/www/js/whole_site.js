@@ -16,6 +16,9 @@ function get_numbers() {
                 var numbers = data.numbers;
 				document.getElementById("his").innerHTML = numbers.history;
 				document.getElementById("cal").innerHTML = numbers.calendar;
+				if(data.patient=='y') {
+					document.getElementById("logout").style.display = 'none';	
+				}
 			},
 			error: function(xhr, textStatus, errorThrown) {
        				document.getElementById("his").innerHTML = "0";
@@ -27,14 +30,11 @@ function get_numbers() {
 }
 
 function send_position() {
-	var latitude = ""; var longitude = "";
 	navigator.geolocation.getCurrentPosition(function(location) {
   		var latitude = location.coords.latitude;
   		var longitude = location.coords.longitude;
-	});
-
-    var json = {latitude:latitude, longitude:longitude};
-    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/set_position",
+		var json = {latitude:latitude, longitude:longitude};
+    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/set_position/",
         	{
             	method: 'POST',
             	contentType: 'application/json',
@@ -44,4 +44,5 @@ function send_position() {
     			}
         	 }
     	);
+	});
 }

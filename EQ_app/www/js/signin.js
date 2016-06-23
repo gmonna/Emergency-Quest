@@ -24,7 +24,7 @@ function check_login() {
 function login(event) {
     var email = $("input[name='email']").val();
     var password = $("input[name='password']").val();
-	var patient = $("input[name='patient']").val();
+	var patient = $("input[name='patient']:checked").val();
 	var anorapp = ''; var deviceid = '';
 	if (userAgent.match( /Android/i )) anorapp = 'android';
 	else anorapp = 'ios';

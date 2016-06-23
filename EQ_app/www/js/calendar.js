@@ -1,6 +1,5 @@
 // JavaScript Document
 $(document).ready(function () {
-	'<%Session["code"] = "-1"; %>'
     get_calendar();
 });
 
