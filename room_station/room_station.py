@@ -1,10 +1,17 @@
+#!/usr/bin/env python
+
+"""
+Created on June 4, 2016
+@author: gmonna
+"""
+
 from flask import Flask
+from flaskrun import flaskrun
 from apscheduler.schedulers.background import BackgroundScheduler
 from alyt_api import AlytHub
 import time, db_room_interaction, requests, os, vlc, fitbit_api, math, json, logging
 
 app = Flask(__name__)
-bcod = "k5kr" #--it is the user-id for fitbit bracelet--#
 perimeter = 0
 latitude = None
 longitude = None
@@ -14,6 +21,12 @@ message = None
 ms_motion = None
 cal = 'noappos'
 alyt = AlytHub("192.168.1.103")
+
+#---first installation of service, save bracelet code for usage---#
+def create_code():
+    url = "http://192.168.1.102:8080/rest_api/v1.0/save_bcode/"+app.config['USERID']
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    requests.post(url, headers=headers)
 
 #---convert address to its latitude and longitude---#
 def coordinates(address):
@@ -49,13 +62,13 @@ def motion():
 
 #---new notification function to call when something dangerous happen---#
 def new_notification(message):
-    url = "http://192.168.1.102:8080/rest_api/v1.0/new_notification/"+bcod+"&"+message
+    url = "http://192.168.1.102:8080/rest_api/v1.0/new_notification/"+app.config['USERID']+"&"+message
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     requests.post(url, headers=headers)
 
 #---function to get settings---#
 def settings():
-    url = "http://192.168.1.102:8080/rest_api/v1.0/get_user_settings/" + bcod
+    url = "http://192.168.1.102:8080/rest_api/v1.0/get_user_settings/" + app.config['USERID']
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     response = requests.get(url, headers=headers)
     sttings = json.loads(response.text)
@@ -81,11 +94,14 @@ def settings():
     mess = os.getcwd() + '/message.mp3'
     message = vlc.MediaPlayer(mess)
 
-#---cron job to ask sensors---#
+#---cron jobs to ask sensors---#
 
 @app.before_first_request
 def initialize():
     logging.basicConfig()
+    if app.config['FIRST']: #-- create code in main server database only if it's first time
+        create_code()
+        return
     sched = BackgroundScheduler()
     settings()
     motion()
@@ -103,7 +119,7 @@ def initialize():
                     time.sleep(5)
                     os.remove('reminder.mp3')
                     db_room_interaction.set_done(appo[0])
-                    url = "http://192.168.1.102:8080/rest_api/v1.0/set_appointment_done/"+appo[0]+"&"+bcod
+                    url = "http://192.168.1.102:8080/rest_api/v1.0/set_appointment_done/"+appo[0]+"&"+app.config['USERID']
                     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                     requests.post(url, headers=headers)
 
@@ -117,7 +133,7 @@ def initialize():
 
     @sched.scheduled_job('interval', minutes=5)
     def get_position():
-        url = "http://192.168.1.102:8080/rest_api/v1.0/get_last_position/" + bcod
+        url = "http://192.168.1.102:8080/rest_api/v1.0/get_last_position/" + app.config['USERID']
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers)
         position = json.loads(response.text)
@@ -129,7 +145,7 @@ def initialize():
 
     @sched.scheduled_job('interval', minutes=5)
     def get_agitation():
-        if (fitbit_api.get_agitation(bcod) > 100):
+        if (fitbit_api.get_agitation(app.config['USERID']) > 100):
             message.play()
             alyt.turn_on_off_HueBulb("Hue Bulb 1", "on")
             if (colour == 'blue'):
@@ -158,7 +174,7 @@ def initialize():
     @sched.scheduled_job('cron', day_of_week='mon-sun')
     def get_today_calendar():
         db_room_interaction.delete_calendar()
-        url = "http://192.168.1.102:8080/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%m-%d")+"&"+bcod
+        url = "http://192.168.1.102:8080/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%m-%d")+"&"+app.config['USERID']
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers)
         if(response.text is not None):
@@ -171,4 +187,4 @@ def initialize():
     sched.start()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    flaskrun(app)

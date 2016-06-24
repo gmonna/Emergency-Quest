@@ -78,7 +78,8 @@ def get_appointments():
     cursor = conn.cursor()
 
     sql = "SELECT code, message, ora FROM CALENDAR;"
-    appos = cursor.execute(sql)
+    cursor.execute(sql)
+    appos = cursor.fetchall()
 
     conn.close()
     return appos;

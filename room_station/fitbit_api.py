@@ -1,5 +1,11 @@
-import requests, json, base64, urllib, urllib2, sys, json, os, datetime
+#!/usr/bin/env python
 
+"""
+Created on June 13, 2016
+@author: gmonna
+"""
+
+import requests, json, base64, urllib, urllib2, sys, json, os, datetime
 
 """
 A module representing a Fitbit bracelet
@@ -171,25 +177,6 @@ def MakeAPICall(InURL, AccToken, RefToken):
 
 
 # Main part of the code
-# Declare these global variables that we'll use for the access and refresh tokens
-def get_position(user_id):
-    AccessToken = ""
-    RefreshToken = ""
-    FitbitURL = "https://api.fitbit.com/1/user/-/profile.json"
-
-    # Get the config
-    AccessToken, RefreshToken = GetConfig()
-
-    # Make the API call
-    APICallOK, APIResponse = MakeAPICall(FitbitURL, AccessToken, RefreshToken)
-
-    if APICallOK:
-        return APIResponse
-    else:
-        if (APIResponse == TokenRefreshedOK):
-            print "Refreshed the access token.  Can go again"
-        else:
-            print ErrorInAPI
 
 def get_agitation(user_id):
     AccessToken = ""
