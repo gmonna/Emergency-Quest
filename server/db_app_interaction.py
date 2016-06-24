@@ -1,12 +1,31 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Created on May 30, 2016
 @author: gmonna
 """
 
-import sqlite3, smtplib, os, base64, hashlib
+import sqlite3, smtplib, os, base64, hashlib, requests
 DATABASE = os.getcwd()+'/db/database.db'
+
+def save_bcode(bcod, date):
+    """
+    Insert bracelet code for first time
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    req = "INSERT INTO CODE(bcod, buy_date) VALUES(?, ?)"
+    try:
+        cursor.execute(req, (bcod, date))
+        conn.commit()
+    except Exception, e:
+        print str(e)
+        conn.rollback()
+
+    conn.close()
 
 def get_device_tokens(email):
     """
@@ -203,7 +222,7 @@ def get_settings(email):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT perimeter, colour, song, doct, message, auto_clean, doc_access FROM PREFERENCES WHERE email=?"
+    sql = "SELECT perimeter, colour, song, doct, message, auto_clean, doc_access, address FROM PREFERENCES WHERE email=?"
 
     cursor.execute(sql, (email, ))
     settings = cursor.fetchone()
@@ -239,6 +258,12 @@ def set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_
 
     if (first=='y'):
         sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, doc_access, address, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        url = "https://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false"
+        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        coor = requests.get(url, headers=headers)
+        latitude = coor['results']['geometry']['location']['lat']
+        longitude = coor['results']['geometry']['location']['lng']
+        sql2 = "INSERT INTO POSITION(email, latitude, longitude) VALUES(?, ?, ?)"
     else:
         sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=?, doc_access=?, address=? WHERE email=?"
 
@@ -250,6 +275,12 @@ def set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_
         conn.commit()
     except Exception, e:
         print str(e)
+        conn.rollback()
+
+    try:
+        cursor.execute(sql2, (email, latitude, longitude))
+        conn.commit()
+    except Exception, e:
         conn.rollback()
 
     conn.close()
@@ -493,10 +524,10 @@ def set_position(email, lat, long):
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    sql = "INSERT INTO POSITION(email, latitude, longitude) VALUES (?, ?, ?)"
+    sql = "UPDATE POSITION SET latitude=?, longitude=? WHERE email=?"
 
     try:
-        cursor.execute(sql, (email, lat, long))
+        cursor.execute(sql, (lat, long, email))
         conn.commit()
     except Exception, e:
         print str(e)

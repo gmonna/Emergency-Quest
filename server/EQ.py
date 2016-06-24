@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Created on May 30, 2016
@@ -415,6 +415,14 @@ def set_position():
 #------ APIs FOR MOBILE APP END ------#
 
 #------ APIs FOR ROOM STATIONS ------#
+
+@app.route('/rest_api/v1.0/save_bcode/<string:bcod>', methods=['POST'])
+def save_bcode(bcod):
+    try:
+        db_app_interaction.save_bcode(bcod, time.strftime("%Y-%m-%d"))
+        return Response(status=200)
+    except Exception, e:
+        return Response(status=500)
 
 @app.route('/rest_api/v1.0/get_user_settings/<string:bcode>', methods=['GET'])
 @crossdomain(origin='*')
