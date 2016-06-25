@@ -1,4 +1,12 @@
 # coding=utf-8
+#!/usr/bin/env python
+
+"""
+Created on June 4, 2016
+@author: gmonna
+
+Module for controlling Alyt Hub and all sensors
+"""
 import requests, json
 
 
