@@ -2,7 +2,9 @@
 
 """
 Created on June 13, 2016
-@author: gmonna
+@authors: gmonna, fieraverto
+
+APIs for communicating with FitBit API service and get user data
 """
 
 import requests, json, base64, urllib, urllib2, sys, json, os, datetime
@@ -182,9 +184,9 @@ def get_agitation(user_id):
     AccessToken = ""
     RefreshToken = ""
     now = datetime.datetime.now()
-    five_mins_ago = now - datetime.timedelta(minutes=5)
+    tw_mins_ago = now - datetime.timedelta(minutes=20)
     FitbitURL = "https://api.fitbit.com/1/user/"+user_id+"/activities/heart/date/today/1d/1min/time/"\
-                +five_mins_ago.seconds // 3600+":"+(five_mins_ago.seconds // 60)+"/"+now.seconds // 3600+":"+(now.seconds // 60)+".json"
+                +tw_mins_ago.seconds // 3600+":"+(tw_mins_ago.seconds // 60)+"/"+now.seconds // 3600+":"+(now.seconds // 60)+".json"
 
     # Get the config
     AccessToken, RefreshToken = GetConfig()

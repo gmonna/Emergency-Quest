@@ -3,6 +3,8 @@
 """
 Created on June 19, 2016
 @author: gmonna
+
+Module for interaction between calendar database and room station server
 """
 
 import sqlite3, os

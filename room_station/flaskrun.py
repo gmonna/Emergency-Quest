@@ -3,6 +3,8 @@
 """
 Created on June 18, 2016
 @author: gmonna
+
+Module to add the possibility to call the server from command line, adding parameters like FitBit user id
 """
 
 import optparse

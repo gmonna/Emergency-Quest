@@ -3,9 +3,11 @@
 """
 Created on June 4, 2016
 @author: gmonna
+
+Central room station for controlling everything in the house
 """
 
-from flask import Flask
+from flask import Flask, request
 from flaskrun import flaskrun
 from apscheduler.schedulers.background import BackgroundScheduler
 from alyt_api import AlytHub
@@ -21,6 +23,13 @@ message = None
 ms_motion = None
 cal = 'noappos'
 alyt = AlytHub("192.168.1.103")
+
+#---shutdown server function---#
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
 
 #---first installation of service, save bracelet code for usage---#
 def create_code():
@@ -101,7 +110,7 @@ def initialize():
     logging.basicConfig()
     if app.config['FIRST']: #-- create code in main server database only if it's first time
         create_code()
-        return
+        shutdown_server()
     sched = BackgroundScheduler()
     settings()
     motion()
@@ -143,7 +152,7 @@ def initialize():
             new_notification(
                 "System detected an exit from the perimeter of the patient, we suggest you to return home.")
 
-    @sched.scheduled_job('interval', minutes=5)
+    @sched.scheduled_job('interval', minutes=20)
     def get_agitation():
         if (fitbit_api.get_agitation(app.config['USERID']) > 100):
             message.play()
