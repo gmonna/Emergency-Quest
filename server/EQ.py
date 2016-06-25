@@ -3,6 +3,8 @@
 """
 Created on May 30, 2016
 @author: gmonna
+
+Main server running on public IP address to be accessible from all mobile apps and all room stations
 """
 
 from flask import Flask, jsonify, abort, session, Response, make_response, request, current_app

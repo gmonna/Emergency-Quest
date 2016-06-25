@@ -3,6 +3,8 @@
 """
 Created on May 30, 2016
 @author: gmonna
+
+Module for database interaction from main server
 """
 
 import sqlite3, smtplib, os, base64, hashlib, requests
