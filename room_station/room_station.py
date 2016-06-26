@@ -2,7 +2,7 @@
 
 """
 Created on June 4, 2016
-@author: gmonna
+@author: gmonna, fieraverto
 
 Central room station for controlling everything in the house
 """
