@@ -12,7 +12,7 @@ from flaskrun import flaskrun
 from apscheduler.schedulers.background import BackgroundScheduler
 from alyt_api import AlytHub
 from subprocess import Popen
-import time, db_room_interaction, requests, os, fitbit_api, math, json, logging
+import time, db_room_interaction, requests, os, fitbit_api, math, json, logging, urllib
 
 app = Flask(__name__)
 bcode = ""
@@ -69,13 +69,13 @@ def getDistanceFromLatLonInM(lat1,lon1,lat2,lon2):
 #---create motion message to play---#
 def motion():
     ms1 = 'Remember to close the door.'
-    wget_line = 'wget -q -U Mozilla -O motion1.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms1 + '&client=tw-ob"'
+    wget_line = 'wget -q -U Mozilla -O motion1.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + urllib.quote_plus(ms1) + '&client=tw-ob"'
     os.system(wget_line)
     global ms_motion1
     ms_motion1 = os.getcwd() + '/motion1.mp3'
     
     ms2 = 'Get away from the window.'
-    wget_line = 'wget -q -U Mozilla -O motion2.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms2 + '&client=tw-ob"'
+    wget_line = 'wget -q -U Mozilla -O motion2.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + urllib.quote_plus(ms2) + '&client=tw-ob"'
     os.system(wget_line)
     global ms_motion2
     ms_motion2 = os.getcwd() + '/motion2.mp3'
@@ -109,7 +109,7 @@ def settings():
     else:
         song = os.getcwd() + '/songs/concentrate.mp3'
     mg = sttings['settings']['message']
-    wget_line = 'wget -q -U Mozilla -O message.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q='+mg+'&client=tw-ob"'
+    wget_line = 'wget -q -U Mozilla -O message.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q='+urllib.quote_plus(mg)+'&client=tw-ob"'
     os.system(wget_line)
     message = os.getcwd() + '/message.mp3'
 
@@ -134,7 +134,7 @@ def initialize():
             appointments = db_room_interaction.get_appointments()
             for appo in appointments:
                 if appo[2] == time.strftime("%02H:%02M"):
-                    wget_line = 'wget -q -U Mozilla -O reminder.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + appo[1] + '&client=tw-ob"'
+                    wget_line = 'wget -q -U Mozilla -O reminder.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + urllib.quote_plus(appo[1]) + '&client=tw-ob"'
                     os.system(wget_line)
                     reminder = os.getcwd()+'/reminder.mp3'
                     omxp_rem = Popen(['omxplayer', reminder])
