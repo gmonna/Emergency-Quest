@@ -19,7 +19,7 @@ def insert_code(code):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "INSERT INTO CALENDAR(code) VALUE(?)"
+    sql = "INSERT INTO CODE(code) VALUES (?)"
 
     try:
         cursor.execute(sql, (code, ))
