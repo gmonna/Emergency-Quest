@@ -61,6 +61,8 @@ def flaskrun(app, default_host="127.0.0.1",
     # Check if it's first time starting room station
     if options.first:
         app.config['FIRST'] = True
+    else:
+        app.config['FIRST'] = False
 
         app.run(
             debug=options.debug,
