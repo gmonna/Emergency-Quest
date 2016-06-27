@@ -47,6 +47,7 @@ def coordinates(address):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     response = requests.get(url, headers=headers)
     coor = json.loads(response.text)
+    global latitude, longitude
     latitude = coor['results'][0]['geometry']['location']['lat']
     longitude = coor['results'][0]['geometry']['location']['lng']
 
@@ -70,11 +71,13 @@ def motion():
     ms1 = 'Remember to close the door.'
     wget_line = 'wget -q -U Mozilla -O motion1.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms1 + '&client=tw-ob"'
     os.system(wget_line)
+    global ms_motion1
     ms_motion1 = os.getcwd() + '/motion1.mp3'
     
     ms2 = 'Get away from the window.'
     wget_line = 'wget -q -U Mozilla -O motion2.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms2 + '&client=tw-ob"'
     os.system(wget_line)
+    global ms_motion2
     ms_motion2 = os.getcwd() + '/motion2.mp3'
 
 #---new notification function to call when something dangerous happen---#
@@ -93,6 +96,7 @@ def settings():
         return
     if(os.path.isfile(os.getcwd()+'/message.mp3')):
         os.remove(os.getcwd() + '/message.mp3')
+    global perimeter, colour, song, message
     perimeter = sttings['settings']['perimeter']
     address = sttings['settings']['address']
     coordinates(address)
@@ -118,12 +122,14 @@ def initialize():
         create_code()
         shutdown_server()
     sched = BackgroundScheduler()
-    bcode = db_room_interaction.get_code()
+    global bcode
+    bcode = db_room_interaction.get_code()[0]
     settings()
     motion()
 
     @sched.scheduled_job('interval', minutes=1)
     def check_appointment():
+        global cal
         if (cal!='noappos'):
             appointments = db_room_interaction.get_appointments()
             for appo in appointments:
@@ -197,6 +203,7 @@ def initialize():
         url = "http://192.168.1.102:8080/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%m-%d")+"&"+bcode
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers)
+        global cal
         if(response.text is not None):
             cal = 'todayappos'
             calendar = json.loads(response.text)
