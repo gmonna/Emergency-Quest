@@ -11,7 +11,8 @@ from flask import Flask, request
 from flaskrun import flaskrun
 from apscheduler.schedulers.background import BackgroundScheduler
 from alyt_api import AlytHub
-import time, db_room_interaction, requests, os, vlc, fitbit_api, math, json, logging
+from subprocess import Popen
+import time, db_room_interaction, requests, os, fitbit_api, math, json, logging
 
 app = Flask(__name__)
 bcode = ""
@@ -21,9 +22,10 @@ longitude = None
 colour = None
 song = None
 message = None
-ms_motion = None
+ms_motion1 = None
+ms_motion2 = None
 cal = 'noappos'
-alyt = AlytHub("192.168.1.103")
+alyt = AlytHub("http://192.168.1.103")
 
 #---shutdown server function---#
 def shutdown_server():
@@ -65,11 +67,15 @@ def getDistanceFromLatLonInM(lat1,lon1,lat2,lon2):
 
 #---create motion message to play---#
 def motion():
-    ms = 'You went too far, keep calm and step back, your family will be home soon.'
-    wget_line = 'wget -q -U Mozilla -O motion.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms + '&client=tw-ob"'
+    ms1 = 'Remember to close the door.'
+    wget_line = 'wget -q -U Mozilla -O motion1.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms1 + '&client=tw-ob"'
     os.system(wget_line)
-    ms = os.getcwd() + '/motion.mp3'
-    ms_motion = vlc.MediaPlayer(ms)
+    ms_motion1 = os.getcwd() + '/motion1.mp3'
+    
+    ms2 = 'Get away from the window.'
+    wget_line = 'wget -q -U Mozilla -O motion2.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + ms2 + '&client=tw-ob"'
+    os.system(wget_line)
+    ms_motion2 = os.getcwd() + '/motion2.mp3'
 
 #---new notification function to call when something dangerous happen---#
 def new_notification(message):
@@ -98,12 +104,10 @@ def settings():
         song = os.getcwd() + '/songs/remind.mp3'
     else:
         song = os.getcwd() + '/songs/concentrate.mp3'
-    song = vlc.MediaPlayer(song)
     mg = sttings['settings']['message']
     wget_line = 'wget -q -U Mozilla -O message.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q='+mg+'&client=tw-ob"'
     os.system(wget_line)
-    mess = os.getcwd() + '/message.mp3'
-    message = vlc.MediaPlayer(mess)
+    message = os.getcwd() + '/message.mp3'
 
 #---cron jobs to ask sensors---#
 
@@ -126,9 +130,9 @@ def initialize():
                 if appo[2] == time.strftime("%02H:%02M"):
                     wget_line = 'wget -q -U Mozilla -O reminder.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=' + appo[1] + '&client=tw-ob"'
                     os.system(wget_line)
-                    reminder = vlc.MediaPlayer(os.getcwd()+'/reminder.mp3')
-                    reminder.play()
-                    time.sleep(5)
+                    reminder = os.getcwd()+'/reminder.mp3'
+                    omxp_rem = Popen(['omxplayer', reminder])
+                    time.sleep(20)
                     os.remove('reminder.mp3')
                     db_room_interaction.set_done(appo[0])
                     url = "http://192.168.1.102:8080/rest_api/v1.0/set_appointment_done/"+appo[0]+"&"+bcode
@@ -137,9 +141,14 @@ def initialize():
 
     @sched.scheduled_job('interval', seconds=30)
     def check_motion():
-        if (alyt.get_motion_state("Motion Sensor 1") == 1 or alyt.get_motion_state("Motion sensor 2") == 1):
-            ms_motion.play()
-            time.sleep(5)
+        if (alyt.get_motion_state("Motion Detector 1") == 1):
+            omxp_ms1 = Popen(['omxplayer', ms_motion1])
+            time.sleep(15)
+            new_notification(
+                "System detected a dangerous situation by motion sensors, now it's helping the patient avoid it.")
+        if (alyt.get_motion_state("Motion Detector 2") == 1):
+            omxp_ms2 = Popen(['omxplayer', ms_motion2])
+            time.sleep(15)
             new_notification(
                 "System detected a dangerous situation by motion sensors, now it's helping the patient avoid it.")
 
@@ -158,7 +167,6 @@ def initialize():
     @sched.scheduled_job('interval', minutes=20)
     def get_agitation():
         if (fitbit_api.get_agitation(bcode) > 100):
-            message.play()
             alyt.turn_on_off_HueBulb("Hue Bulb 1", "on")
             if (colour == 'blue'):
                 r = 22
@@ -173,8 +181,8 @@ def initialize():
                 g = 173
                 b = 32
             alyt.set_Huecolor_rgb("Hue Bulb 1", r, g, b)
-            song.play()
-            time.sleep(10)
+            omxp_song = Popen(['omxplayer', song])
+            time.sleep(300)
             alyt.turn_on_off_HueBulb("Hue Bulb 1", "off")
             new_notification(
                 "System detected a condition of agitation on the patient during last five minutes, now it's trying to calm him down.")
