@@ -2,7 +2,7 @@
 
 """
 Created on June 4, 2016
-@author: gmonna, fieraverto
+@author: gmonna
 
 Central room station for controlling everything in the house
 """
@@ -14,6 +14,7 @@ from alyt_api import AlytHub
 import time, db_room_interaction, requests, os, vlc, fitbit_api, math, json, logging
 
 app = Flask(__name__)
+bcode = ""
 perimeter = 0
 latitude = None
 longitude = None
@@ -36,6 +37,7 @@ def create_code():
     url = "http://192.168.1.102:8080/rest_api/v1.0/save_bcode/"+app.config['USERID']
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     requests.post(url, headers=headers)
+    db_room_interaction.insert_code(app.config['USERID'])
 
 #---convert address to its latitude and longitude---#
 def coordinates(address):
@@ -71,13 +73,13 @@ def motion():
 
 #---new notification function to call when something dangerous happen---#
 def new_notification(message):
-    url = "http://192.168.1.102:8080/rest_api/v1.0/new_notification/"+app.config['USERID']+"&"+message
+    url = "http://192.168.1.102:8080/rest_api/v1.0/new_notification/"+bcode+"&"+message
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     requests.post(url, headers=headers)
 
 #---function to get settings---#
 def settings():
-    url = "http://192.168.1.102:8080/rest_api/v1.0/get_user_settings/" + app.config['USERID']
+    url = "http://192.168.1.102:8080/rest_api/v1.0/get_user_settings/" + bcode
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     response = requests.get(url, headers=headers)
     sttings = json.loads(response.text)
@@ -112,6 +114,7 @@ def initialize():
         create_code()
         shutdown_server()
     sched = BackgroundScheduler()
+    bcode = db_room_interaction.get_code()
     settings()
     motion()
 
@@ -128,7 +131,7 @@ def initialize():
                     time.sleep(5)
                     os.remove('reminder.mp3')
                     db_room_interaction.set_done(appo[0])
-                    url = "http://192.168.1.102:8080/rest_api/v1.0/set_appointment_done/"+appo[0]+"&"+app.config['USERID']
+                    url = "http://192.168.1.102:8080/rest_api/v1.0/set_appointment_done/"+appo[0]+"&"+bcode
                     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                     requests.post(url, headers=headers)
 
@@ -142,7 +145,7 @@ def initialize():
 
     @sched.scheduled_job('interval', minutes=5)
     def get_position():
-        url = "http://192.168.1.102:8080/rest_api/v1.0/get_last_position/" + app.config['USERID']
+        url = "http://192.168.1.102:8080/rest_api/v1.0/get_last_position/" + bcode
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers)
         position = json.loads(response.text)
@@ -154,7 +157,7 @@ def initialize():
 
     @sched.scheduled_job('interval', minutes=20)
     def get_agitation():
-        if (fitbit_api.get_agitation(app.config['USERID']) > 100):
+        if (fitbit_api.get_agitation(bcode) > 100):
             message.play()
             alyt.turn_on_off_HueBulb("Hue Bulb 1", "on")
             if (colour == 'blue'):
@@ -183,7 +186,7 @@ def initialize():
     @sched.scheduled_job('cron', day_of_week='mon-sun')
     def get_today_calendar():
         db_room_interaction.delete_calendar()
-        url = "http://192.168.1.102:8080/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%m-%d")+"&"+app.config['USERID']
+        url = "http://192.168.1.102:8080/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%m-%d")+"&"+bcode
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers)
         if(response.text is not None):

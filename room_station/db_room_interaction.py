@@ -10,6 +10,26 @@ Module for interaction between calendar database and room station server
 import sqlite3, os
 DATABASE = os.getcwd()+'/db/db_station.db'
 
+def insert_code(code):
+    """
+    Insert bracelet code
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "INSERT INTO CALENDAR(code) VALUE(?)"
+
+    try:
+        cursor.execute(sql, (code, ))
+        conn.commit()
+    except Exception, e:
+        print str(e)
+        conn.rollback()
+
+    conn.close()
+
 def set_done(code):
     """
     Set this appointment to done=y
@@ -84,4 +104,20 @@ def get_appointments():
     appos = cursor.fetchall()
 
     conn.close()
-    return appos;
+    return appos
+
+def get_code():
+    """
+    Get all daily appointments
+    """
+
+    conn = sqlite3.connect(DATABASE)
+    conn.text_factory = sqlite3.OptimizedUnicode
+    cursor = conn.cursor()
+
+    sql = "SELECT code FROM CODE;"
+    cursor.execute(sql)
+    code = cursor.fetchone()
+
+    conn.close()
+    return code
