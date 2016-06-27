@@ -22,36 +22,36 @@ function check_login() {
 }
 
 function login(event) {
-    var email = $("input[name='email']").val();
-    var password = $("input[name='password']").val();
+    	var email = $("input[name='email']").val();
+    	var password = $("input[name='password']").val();
 	var patient = $("input[name='patient']:checked").val();
 	var anorapp = ''; var deviceid = '';
-	/*if (userAgent.match( /Android/i )) anorapp = 'android';
+	if (userAgent.match( /Android/i )) anorapp = 'android';
 	else anorapp = 'ios';
 	
 	var push = PushNotification.init({ "android": {"senderID": "836442599686"},
          "ios": {"alert": "true", "badge": "true", "sound": "true"}});
 
-    push.on('registration', function(data) {
-       	deviceid = data.registrationId;
-    });
+    	push.on('registration', function(data) {
+       		deviceid = data.registrationId;
+    	});
 	
 	push.on('notification', function(data) {
 		cordova.plugins.notification.local.schedule({
-    		title: "New history notification",
-    		text: data.message,
-    		sound: "default",
-    		icon: "/images/logoStanford32.png"
+    			title: "New history notification",
+    			text: data.message,
+    			sound: "default",
+    			icon: "/images/logoStanford32.png"
 		});
 
 		cordova.plugins.notification.local.on("click", function (notification) {
-    		window.location.assign('history.html');
+    			window.location.assign('history.html');
 		});
 	});
 
 	push.on('error', function(e) {
 		console.log(e.message);
-	});*/
+	});
 
     var json = {patient: patient, email: email, password: password, deviceid:deviceid, anorapp:anorapp};
         $.ajax("http://192.168.1.102:8080/rest_api/v1.0/signin",
