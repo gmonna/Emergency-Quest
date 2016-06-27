@@ -3,7 +3,7 @@
 
 """
 Created on June 4, 2016
-@author: gmonna
+@author: fieraverto
 
 Module for controlling Alyt Hub and all sensors
 """
