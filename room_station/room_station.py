@@ -139,7 +139,7 @@ def initialize():
                     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                     requests.post(url, headers=headers)
 
-    @sched.scheduled_job('interval', seconds=30)
+    @sched.scheduled_job('interval', seconds=15)
     def check_motion():
         if (alyt.get_motion_state("Motion Detector 1") == 1):
             omxp_ms1 = Popen(['omxplayer', ms_motion1])
