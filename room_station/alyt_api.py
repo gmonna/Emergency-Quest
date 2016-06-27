@@ -46,22 +46,6 @@ class AlytHub:
         print json.dumps(obj_json, indent=4, sort_keys=False)
 
 
-    """def server_login(self):
-
-        url = self.alyt_url + "/server/login"
-        data = { 'username' : self.user, 'password' : self.passwd }
-
-        answer = requests.post(url, data = data)
-        print answer.json()
-
-    def server_hub_list(self):
-
-        url = self.alyt_url + "/server/hubs_list"
-
-        answer = requests.get(url)
-        print answer.json()"""
-
-
     def create_session(self):
 
         url = self.create_URL("/login")
