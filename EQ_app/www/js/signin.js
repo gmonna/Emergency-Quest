@@ -26,7 +26,7 @@ function login(event) {
     var password = $("input[name='password']").val();
 	var patient = $("input[name='patient']:checked").val();
 	var anorapp = ''; var deviceid = '';
-	if (userAgent.match( /Android/i )) anorapp = 'android';
+	/*if (userAgent.match( /Android/i )) anorapp = 'android';
 	else anorapp = 'ios';
 	
 	var push = PushNotification.init({ "android": {"senderID": "836442599686"},
@@ -51,7 +51,7 @@ function login(event) {
 
 	push.on('error', function(e) {
 		console.log(e.message);
-	});
+	});*/
 
     var json = {patient: patient, email: email, password: password, deviceid:deviceid, anorapp:anorapp};
         $.ajax("http://192.168.1.102:8080/rest_api/v1.0/signin",
