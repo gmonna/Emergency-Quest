@@ -14,7 +14,7 @@ class AlytHub:
     """
     A class representing a Alyt Hub
     """
-    def __init__(self, url, passwd = "FlickaGlitch39"):
+    def __init__(self, url, passwd = "EmergencyQuest02"):
 
         # remove trailing slashes
         if url[-1] == '/':
