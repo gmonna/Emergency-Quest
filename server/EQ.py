@@ -462,11 +462,6 @@ def load_user_settings(bcode):
 def send_push(bcod, message):
     email = db_app_interaction.get_email(bcod)
     email = email[0]
-    try:
-        db_app_interaction.set_appointment_done(email, code)
-        return Response(status=200)
-    except Exception, e:
-        return Response(status=500)
 
     try:
         db_app_interaction.insert_notification(email, time.strftime("%Y-%m-%d"), time.strftime("%H:%M"), message)
