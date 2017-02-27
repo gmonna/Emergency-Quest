@@ -25,7 +25,7 @@ message = None
 ms_motion1 = None
 ms_motion2 = None
 cal = 'noappos'
-alyt = AlytHub("http://192.168.1.103")
+alyt = AlytHub("http://192.168.137.64")
 
 #---shutdown server function---#
 def shutdown_server():
@@ -36,7 +36,7 @@ def shutdown_server():
 
 #---first installation of service, save bracelet code for usage---#
 def create_code():
-    url = "http://192.168.1.102:8080/rest_api/v1.0/save_bcode/"+app.config['USERID']
+    url = "http://192.168.137.20:5000/rest_api/v1.0/save_bcode/"+app.config['USERID']
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     requests.post(url, headers=headers)
     db_room_interaction.insert_code(app.config['USERID'])
@@ -57,10 +57,10 @@ def deg2rad(deg):
 
 def getDistanceFromLatLonInM(lat1,lon1,lat2,lon2):
     R = 6371 # Radius of the earth in km
-    dlat = deg2rad(lat2-lat1)
-    dlon = deg2rad(lon2-lon1)
+    dlat = deg2rad(float(lat2)-float(lat1))
+    dlon = deg2rad(float(lon2)-float(lon1))
     a = math.sin(dlat/2) * math.sin(dlat/2) + \
-    math.cos(deg2rad(lat1)) * math.cos(deg2rad(lat2)) * \
+    math.cos(deg2rad(float(lat1))) * math.cos(deg2rad(float(lat2))) * \
     math.sin(dlon/2) * math.sin(dlon/2)
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     d = R * c  * 1000 # Distance in m
@@ -82,13 +82,13 @@ def motion():
 
 #---new notification function to call when something dangerous happen---#
 def new_notification(message):
-    url = "http://192.168.1.102:8080/rest_api/v1.0/new_notification/"+bcode+"&"+message
+    url = "http://192.168.137.20:5000/rest_api/v1.0/new_notification/"+bcode+"&"+message
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     requests.post(url, headers=headers)
 
 #---function to get settings---#
 def settings():
-    url = "http://192.168.1.102:8080/rest_api/v1.0/get_user_settings/" + bcode
+    url = "http://192.168.137.20:5000/rest_api/v1.0/get_user_settings/" + bcode
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     response = requests.get(url, headers=headers)
     sttings = json.loads(response.text)
@@ -119,6 +119,7 @@ def settings():
 def initialize():
     logging.basicConfig()
     if app.config['FIRST']: #-- create code in main server database only if it's first time
+        print("1")
         create_code()
         shutdown_server()
     sched = BackgroundScheduler()
@@ -140,14 +141,17 @@ def initialize():
                     omxp_rem = Popen(['omxplayer', reminder])
                     time.sleep(20)
                     os.remove('reminder.mp3')
+                    
                     db_room_interaction.set_done(appo[0])
-                    url = "http://192.168.1.102:8080/rest_api/v1.0/set_appointment_done/"+appo[0]+"&"+bcode
+                    data = {'code':appo[0],'bcode':bcode}
+                    url = "http://192.168.137.20:5000/rest_api/v1.0/set_appointment_done"
                     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-                    requests.post(url, headers=headers)
+                    requests.post(url, headers=headers, json=data)
 
     @sched.scheduled_job('interval', seconds=15)
     def check_motion():
         if (alyt.get_motion_state("Motion Detector 1") == 1):
+            print(alyt.get_motion_state)
             omxp_ms1 = Popen(['omxplayer', ms_motion1])
             time.sleep(15)
             new_notification(
@@ -160,7 +164,7 @@ def initialize():
 
     @sched.scheduled_job('interval', minutes=5)
     def get_position():
-        url = "http://192.168.1.102:8080/rest_api/v1.0/get_last_position/" + bcode
+        url = "http://192.168.137.20:5000/rest_api/v1.0/get_last_position/" + bcode
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers)
         position = json.loads(response.text)
@@ -173,23 +177,23 @@ def initialize():
     @sched.scheduled_job('interval', minutes=20)
     def get_agitation():
         if (fitbit_api.get_agitation(bcode) > 100):
-            alyt.turn_on_off_HueBulb("HueBulb 1", "on")
-            if (colour == 'blue'):
-                r = 22
-                g = 14
-                b = 170
-            elif (colour == 'red'):
-                r = 173
-                g = 0
-                b = 9
-            else:
-                r = 180
-                g = 173
-                b = 32
-            alyt.set_Huecolor_rgb("HueBulb 1", r, g, b)
+        #    alyt.turn_on_off_HueBulb("HueBulb 1", "on")
+        #    if (colour == 'blue'):
+        #        r = 22
+        #        g = 14
+        #        b = 170
+        #    elif (colour == 'red'):
+        #        r = 173
+        #        g = 0
+        #        b = 9
+        #    else:
+        #        r = 180
+        #        g = 173
+        #        b = 32
+        #    alyt.set_Huecolor_rgb("HueBulb 1", r, g, b)
             omxp_song = Popen(['omxplayer', song])
             time.sleep(300)
-            alyt.turn_on_off_HueBulb("HueBulb 1", "off")
+         #   alyt.turn_on_off_HueBulb("HueBulb 1", "off")
             new_notification(
                 "System detected a condition of agitation on the patient during last five minutes, now it's trying to calm him down.")
 
@@ -200,14 +204,14 @@ def initialize():
     @sched.scheduled_job('cron', day_of_week='mon-sun')
     def get_today_calendar():
         db_room_interaction.delete_calendar()
-        url = "http://192.168.1.102:8080/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%m-%d")+"&"+bcode
+        url = "http://192.168.137.20:5000/rest_api/v1.0/get_day_calendar/"+time.strftime("%Y-%d-%m")+"&"+bcode
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers)
         global cal
         if(response.text is not None):
             cal = 'todayappos'
             calendar = json.loads(response.text)
-            db_room_interaction.import_calendar(calendar['daily_cal'])
+            db_room_interaction.import_calendar(calendar)
         else:
             cal = 'noappos'
 
