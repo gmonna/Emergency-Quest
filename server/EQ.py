@@ -7,7 +7,7 @@ Created on May 30, 2016
 Main server running on public IP address to be accessible from all mobile apps and all room stations
 """
 
-from flask import Flask, jsonify, abort, session, Response, make_response, request, current_app
+from flask import Flask, jsonify, abort, session, Response, make_response, request, current_app, json
 from datetime import timedelta
 from functools import update_wrapper
 from gcm import *
@@ -145,9 +145,12 @@ def send_email(email, message):
 @app.route('/rest_api/v1.0/signup', methods=['POST'])
 @crossdomain(origin='*')
 def new_user():
-    insert_request = request.json
+    insert_request = request.get_json()
+    #insert_request = request.get_json()
+    #insert_request = 'shalala'
 
     if (insert_request is not None) and ('name' and 'surname' and 'email' and 'password' and 'bcod') in insert_request:
+      print insert_request
       bcod = insert_request.get('bcod')
       bc = db_app_interaction.get_code(bcod)
       if bc is None:
@@ -172,34 +175,40 @@ def new_user():
 @app.route('/rest_api/v1.0/signin', methods=['POST'])
 @crossdomain(origin='*')
 def log_in():
-    email = request.json.get('email')
+    input_request = request.get_json()
+    email = request.get_json().get('email')
     bcod = db_app_interaction.check_email(email)
     if bcod is None:
-      abort(404)
+      return Response(status=404)
 
-    password = request.json.get('password')
-    patient = request.json.get('patient')
+    password = request.get_json().get('password')
+    patient = request.get_json().get('patient')
     session['patient'] = patient
 
     try:
         user = db_app_interaction.sign_in(email, password)
         if user is None:
-            abort(403)
+            return Response(status=403)
+
         session['email'] = email
         session['first'] = 'n'
-        deviceid = request.json.get('deviceid')
-        anorapp = request.json.get('anorapp')
+        deviceid = request.get_json().get('deviceid')
+        anorapp = request.get_json().get('anorapp')
+
         try:
             db_app_interaction.insert_token(email, deviceid, anorapp)
+            return Response(status=302)
         except Exception, e:
             print e
-        return Response(status=200)
+
     except Exception, e:
         return Response(status=500)
 
 @app.route('/rest_api/v1.0/already_signin', methods=['GET'])
 @crossdomain(origin='*')
 def al_log_in():
+
+    session.clear()
     if 'email' in session:
         return Response(status=200)
     else:
@@ -255,6 +264,7 @@ def settings():
       first = session['first']
 
       try:
+
         db_app_interaction.set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_access, address, first)
         session['first'] = 'n'
         return Response(status=200)
@@ -408,18 +418,28 @@ def set_position():
     pos_request = request.json
 
     if (pos_request is not None) and ('latitude' and 'longitude') in pos_request and 'patient' in session and session['patient']=='y':
+
         try:
             db_app_interaction.set_position(session['email'], pos_request['latitude'], pos_request['longitude'])
             return Response(status=200)
         except Exception, e:
             return Response(status=500)
 
+    return Response(status=405)
 #------ APIs FOR MOBILE APP END ------#
 
 #------ APIs FOR ROOM STATIONS ------#
 
-@app.route('/rest_api/v1.0/save_bcode/<string:bcod>', methods=['POST'])
-def save_bcode(bcod):
+@app.route('/rest_api/v1.0/save_bcode', methods=['POST'])
+#def save_bcode(bcod):
+def save_bcode():
+    input_json = request.get_json(force=True)
+    # force=True, above, is necessary if another developer
+    # forgot to set the MIME type to 'application/json'
+    #print 'data from client: ',input_json
+
+    bcod = input_json
+
     try:
         db_app_interaction.save_bcode(bcod, time.strftime("%Y-%m-%d"))
         return Response(status=200)
@@ -442,19 +462,30 @@ def load_user_settings(bcode):
 def send_push(bcod, message):
     email = db_app_interaction.get_email(bcod)
     email = email[0]
-    db_app_interaction.insert_notification(email, time.strftime("%Y-%m-%d"), time.strftime("%H:%M"), message)
-    send_email(email, message)
-    if db_app_interaction.grant_docaccess:
-        send_email(db_app_interaction.get_docemail(bcod), message)
-    devices = db_app_interaction.get_devices_token(email)
-    for device in devices:
-        if device[1]=='ios':
-            payload = Payload(alert=message, sound="default", badge=1)
-            apns.gateway_server.send_notification(device[0], payload)
-        else:
-            data = {'message': message}
-            reg_id = device[0]
-            gcm.plaintext_request(registration_id=reg_id, data=data)
+    try:
+        db_app_interaction.set_appointment_done(email, code)
+        return Response(status=200)
+    except Exception, e:
+        return Response(status=500)
+
+    try:
+        db_app_interaction.insert_notification(email, time.strftime("%Y-%m-%d"), time.strftime("%H:%M"), message)
+    except Exception, e:
+        return Response(status=500)
+
+    try:
+        send_email(email, message)
+    except Exception, e:
+        return Response(status=501)
+
+    try:
+        if db_app_interaction.grant_docaccess:
+            send_email(db_app_interaction.get_docemail(bcod), message)
+    except Exception, e:
+        return Response(status=502)
+
+    return Response(status=200)
+
 
 @app.route('/rest_api/v1.0/get_day_calendar/<string:date>&<string:bcod>', methods=['GET'])
 @crossdomain(origin='*')
@@ -470,17 +501,24 @@ def load_day_calendar(bcod, date):
     for item in day:
       d = prepare_for_json(item)
       daily.append(d)
+    #print daily
+    for item2 in daily:
+        print item2
+    #return jsonify({'daily_cal':daily})
+    return jsonify(daily)
 
-    return jsonify({'daily_cal':daily})
-
-@app.route('/rest_api/v1.0/set_appointment_done/<string:code>&<string:bcod>', methods=['PUT'])
+@app.route('/rest_api/v1.0/set_appointment_done', methods=['POST'])
 @crossdomain(origin='*')
-def set_appointment_done(code, bcod):
-    update_req = request.json
+def set_appointment_done():
+
+    client_data = request.get_json(force=True)
+    bcod = client_data['bcode']
+
+    code = client_data['code']
     email = db_app_interaction.get_email(bcod)
     email = email[0]
 
-    if update_req is not None:
+    if client_data is not None:
 
       try:
         db_app_interaction.set_appointment_done(email, code)
@@ -499,9 +537,10 @@ def get_last_position(bcod):
     if not position:
         abort(404)
 
-    return jsonify({'position': {'latitude': position['latitude'], 'longitude': position['longitude']}})
+    return jsonify( {'latitude': position['latitude'], 'longitude': position['longitude']})
 
 #------ APIs FOR ROOM STATIONS END ------#
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.102', port=8080)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+    #app.run(debug=True)

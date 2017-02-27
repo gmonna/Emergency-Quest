@@ -20,6 +20,8 @@ def save_bcode(bcod, date):
     cursor = conn.cursor()
 
     req = "INSERT INTO CODE(bcod, buy_date) VALUES(?, ?)"
+
+
     try:
         cursor.execute(req, (bcod, date))
         conn.commit()
@@ -27,6 +29,11 @@ def save_bcode(bcod, date):
         print str(e)
         conn.rollback()
 
+
+    #cursor.execute("SELECT * FROM CODE")
+    #print(cursor.fetchall())
+
+    conn.commit()
     conn.close()
 
 def get_device_tokens(email):
@@ -258,32 +265,22 @@ def set_settings(email, perimeter, colour, song, doct, message, auto_clean, doc_
     Set preferences distinguishing between new user and already registered user
     """
 
-    if (first=='y'):
-        sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, doc_access, address, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        url = "https://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false"
-        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-        coor = requests.get(url, headers=headers)
-        latitude = coor['results']['geometry']['location']['lat']
-        longitude = coor['results']['geometry']['location']['lng']
-        sql2 = "INSERT INTO POSITION(email, latitude, longitude) VALUES(?, ?, ?)"
-    else:
-        sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=?, doc_access=?, address=? WHERE email=?"
+  #  if (first=='y'):
+  #      sql = "INSERT INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, doc_access, address, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  #  else:
+  #      sql = "UPDATE PREFERENCES SET perimeter=?, colour=?, song=?, doct=?, message=?, auto_clean=?, doc_access=?, address=? WHERE email=?"
 
+    sql = "REPLACE INTO PREFERENCES(perimeter, colour, song, doct, message, auto_clean, doc_access, address, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-
     try:
         cursor.execute(sql, (perimeter, colour, song, doct, message, auto_clean, doc_access, address, email))
+   #     print cursor.execute("select * from PREFERENCES where email=?",(email,)).fetchone()
         conn.commit()
     except Exception, e:
         print str(e)
         conn.rollback()
 
-    try:
-        cursor.execute(sql2, (email, latitude, longitude))
-        conn.commit()
-    except Exception, e:
-        conn.rollback()
 
     conn.close()
 
@@ -390,7 +387,7 @@ def get_day_calendar(email, date):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT code, message, ora FROM CALENDAR WHERE email=? AND data=? ORDER BY ora ASC"
+    sql = "SELECT code, ora, message, priority FROM CALENDAR WHERE email=? AND data=? ORDER BY ora ASC"
 
     cursor.execute(sql, (email, date))
     calendar = cursor.fetchall()
@@ -477,6 +474,7 @@ def set_appointment(email, description, title, data, ora, message, priority):
     try:
         cursor.execute(sql, (email, description, code, title, done, data, ora, message, priority))
         conn.commit()
+
     except Exception, e:
         print str(e)
         conn.rollback()
@@ -526,10 +524,12 @@ def set_position(email, lat, long):
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    sql = "UPDATE POSITION SET latitude=?, longitude=? WHERE email=?"
+
+    sql = "REPLACE INTO POSITION(email,latitude,longitude) VALUES(?,?,?)"
+
 
     try:
-        cursor.execute(sql, (lat, long, email))
+        cursor.execute(sql, (email, lat, long))
         conn.commit()
     except Exception, e:
         print str(e)
@@ -546,12 +546,12 @@ def get_position(email):
     conn.text_factory = sqlite3.OptimizedUnicode
     cursor = conn.cursor()
 
-    sql = "SELECT latitude, longitude FROM POSITION WHERE email=?"
 
-    cursor.execute(sql, (email, ))
-    position = cursor.fetchone()
+    cursor.execute("SELECT latitude,longitude FROM POSITION WHERE email=?",(email,))
 
-    pos = dict()
+    position=cursor.fetchone()
+
+    pos=dict()
     pos['latitude'] = position[0]
     pos['longitude'] = position[1]
 
