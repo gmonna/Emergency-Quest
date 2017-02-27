@@ -5,7 +5,7 @@ $(document).ready(function () {
 
 function get_history() {
     $.ajax(
-        'http://192.168.1.102:8080/rest_api/v1.0/get_history',
+        'http://127.0.0.1:5000/rest_api/v1.0/get_history',
         {
             method: "GET",
             dataType: "json",

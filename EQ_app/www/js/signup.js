@@ -22,7 +22,8 @@ function signup(event) {
         alert('Password must be at least of 8 characters!');
         event.preventDefault();
     } else {	
-    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/signup",
+    	//$.ajax('http://127.0.0.1:5000/rest_api/v1.0/signup',
+		$.ajax('http://127.0.0.1:5000/rest_api/v1.0/signup',
         	{
             	method: 'POST',
             	contentType: 'application/json',

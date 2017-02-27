@@ -1,12 +1,16 @@
 // JavaScript Document
 // JavaScript Document
+var counter = 1
 $(document).ready(function () {
+	counter = 1;
     get_position();
 });
 
+
 function get_position() {
+	
     $.ajax(
-        'http://192.168.1.102:8080/rest_api/v1.0/get_position',
+        'http://127.0.0.1:5000/rest_api/v1.0/get_position',
         {
             method: "GET",
             dataType: "json",
@@ -18,6 +22,7 @@ function get_position() {
 				$("#mappp").attr({
         			"data-widget-latlng" : latitude + "," + longitude
     			});
+				
 			},
 			error: function(xhr, textStatus, errorThrown) {
        				alert('Unknown error, charging position is impossible.');

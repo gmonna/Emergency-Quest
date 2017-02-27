@@ -9,7 +9,7 @@ $(document).ready(function () {
 
 function get_settings() {
     $.ajax(
-        'http://192.168.1.102:8080/rest_api/v1.0/get_settings',
+        'http://127.0.0.1:5000/rest_api/v1.0/get_settings',
         {
             method: "GET",
             dataType: "json",
@@ -89,7 +89,7 @@ function set_settings(event) {
 
     var json = {address:address, perimeter: perimeter, message: message, doct: doct, colour: colour, song: song, auto_clean: auto, doc_access:doc};
 
-    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/set_settings",
+    	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/set_settings",
         	{
             	method: 'POST',
             	contentType: 'application/json',

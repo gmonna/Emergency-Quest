@@ -3,12 +3,12 @@ $(document).ready(function () {
     get_numbers();
 	setInterval(function() {
   		send_position();
-	}, 60*1000);
+	}, 10*1000);
 });
 
 function get_numbers() {
     $.ajax(
-        'http://192.168.1.102:8080/rest_api/v1.0/get_numbers',
+        'http://127.0.0.1:5000/rest_api/v1.0/get_numbers',
         {
             method: "GET",
             dataType: "json",
@@ -34,14 +34,17 @@ function send_position() {
   		var latitude = location.coords.latitude;
   		var longitude = location.coords.longitude;
 		var json = {latitude:latitude, longitude:longitude};
-    	$.ajax("http://192.168.1.102:8080/rest_api/v1.0/set_position/",
+    	$.ajax("http://127.0.0.1:5000/rest_api/v1.0/set_position/",
         	{
             	method: 'POST',
             	contentType: 'application/json',
             	data: JSON.stringify(json),
-            	error: function(xhr, textStatus, errorThrown) {
-					alert('It was impossible to send your position, maybe you turned off localization.');
-    			}
+				statusCode: {
+					500: function() {
+						alert('It was impossible to send your position, maybe you turned off localization.');
+					}
+				}
+				
         	 }
     	);
 	});
