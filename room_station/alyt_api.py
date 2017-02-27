@@ -27,7 +27,7 @@ class AlytHub:
         self.passwd = passwd
 
         #search and store Philips Hue ID
-        self.ID_HueBulb1 = self.get_ID("HueBulb 1")
+        #self.ID_HueBulb1 = self.get_ID("HueBulb 1")
 
         #search and store Motion Detector 1 ID
         self.ID_motion_d1 = self.get_ID("Motion Detector 1")

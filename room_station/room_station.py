@@ -177,23 +177,23 @@ def initialize():
     @sched.scheduled_job('interval', minutes=20)
     def get_agitation():
         if (fitbit_api.get_agitation(bcode) > 100):
-        #    alyt.turn_on_off_HueBulb("HueBulb 1", "on")
-        #    if (colour == 'blue'):
-        #        r = 22
-        #        g = 14
-        #        b = 170
-        #    elif (colour == 'red'):
-        #        r = 173
-        #        g = 0
-        #        b = 9
-        #    else:
-        #        r = 180
-        #        g = 173
-        #        b = 32
-        #    alyt.set_Huecolor_rgb("HueBulb 1", r, g, b)
+            alyt.turn_on_off_HueBulb("HueBulb 1", "on")
+            if (colour == 'blue'):
+                r = 22
+                g = 14
+                b = 170
+            elif (colour == 'red'):
+                r = 173
+                g = 0
+                b = 9
+            else:
+                r = 180
+                g = 173
+                b = 32
+            alyt.set_Huecolor_rgb("HueBulb 1", r, g, b)
             omxp_song = Popen(['omxplayer', song])
             time.sleep(300)
-         #   alyt.turn_on_off_HueBulb("HueBulb 1", "off")
+            alyt.turn_on_off_HueBulb("HueBulb 1", "off")
             new_notification(
                 "System detected a condition of agitation on the patient during last five minutes, now it's trying to calm him down.")
 
